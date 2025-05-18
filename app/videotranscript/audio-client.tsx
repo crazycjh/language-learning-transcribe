@@ -7,13 +7,16 @@ import { TranscriptDisplay } from "@/components/TranscriptDisplay";
 function AudioFileTranscriptClient() {
   const [transcript, setTranscript] = useState("");
   const [transcriptSRT, setTranscriptSRT] = useState("");
-  const [transcriptProgress, setTranscriptProgress] = useState<number | null>(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [elapsedTime, setElapsedTime] = useState("00:00");
+  const [transcriptProgress, setTranscriptProgress] = useState<number>(0);
+  const [audioBlob, setAudioBlob] = useState<string | undefined>(undefined);
 
-  const handleTranscriptUpdate = (text: string, srt: string) => {
+  const handleTranscriptUpdate = (text: string, srt: string, audioFile?: File) => {
     setTranscript(text);
     setTranscriptSRT(srt);
+    if (audioFile) {
+      const url = URL.createObjectURL(audioFile);
+      setAudioBlob(url);
+    }
   };
 
   const handleTranscriptProgress = (progress: number) => {
@@ -25,17 +28,16 @@ function AudioFileTranscriptClient() {
     <div className="space-y-4">
       <AudioFileTranscript 
         onTranscriptUpdate={handleTranscriptUpdate}
-        onLoadingChange={setIsLoading}
+        onLoadingChange={() => {}}
         onTranscriptProgress={handleTranscriptProgress}
-        onTimeUpdate={setElapsedTime}
+        onTimeUpdate={() => {}}
       />
       
       <TranscriptDisplay 
         transcript={transcript}
         transcriptSRT={transcriptSRT}
         transcriptProgress={transcriptProgress}
-        // isLoading={isLoading}
-        // elapsedTime={elapsedTime}
+        audioUrl={audioBlob}
       />
     </div>
   );

@@ -12,7 +12,7 @@ import { Loader2, Upload } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 
 interface AudioFileTranscriptProps {
-  onTranscriptUpdate: (text: string, srt: string) => void;
+  onTranscriptUpdate: (text: string, srt: string, audioFile?: File) => void;
   onLoadingChange: (isLoading: boolean) => void;
   onTimeUpdate: (time: string) => void;
   onTranscriptProgress: (progress: number) => void;
@@ -154,12 +154,13 @@ export function AudioFileTranscript({
             `${srtIndex}\n${srtTimestamp}\n${newSegment.trimStart()}`;
           transcriptRef.current = updated;
           transcriptSRTRef.current = updatedSRT;
-          onTranscriptUpdate(updated, updatedSRT);
+          onTranscriptUpdate(updated, updatedSRT, file);
         } else if (JSON.parse(data).event === "transcription-progress") {
-          console.log("轉錄進度:", Number(JSON.parse(data).data.progress));
+          // console.log("轉錄進度:", Number(JSON.parse(data).data.progress));
           onTranscriptProgress(Number(JSON.parse(data).data.progress));
         } else if (JSON.parse(data).event === "transcription-complete") {
-          console.log("轉錄完成:", JSON.parse(data).data.text);
+          // 轉錄完成時再次傳遞檔案以確保音頻播放器可用
+          onTranscriptUpdate(transcriptRef.current, transcriptSRTRef.current, file);
           setIsLoading(false);
         }
       });

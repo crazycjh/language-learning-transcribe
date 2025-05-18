@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Download } from "lucide-react";
+import { Download } from "lucide-react";
 
 interface TranscriptDisplayProps {
   transcript: string;
@@ -14,14 +14,14 @@ interface TranscriptDisplayProps {
   // isLoading: boolean;
   // elapsedTime: string;
   transcriptProgress?: number | null;
+  audioUrl?: string;
 }
 
 export function TranscriptDisplay({
   transcript,
   transcriptSRT,
-  // isLoading,
-  // elapsedTime,
   transcriptProgress = null,
+  audioUrl,
 }: TranscriptDisplayProps) {
   const textScrollRef = useRef<HTMLDivElement>(null);
   const srtScrollRef = useRef<HTMLDivElement>(null);
@@ -52,22 +52,19 @@ export function TranscriptDisplay({
     });
   }, [transcriptSRT]);
 
-  //   if (isLoading) {
-  //     return (
-  //       <Card className="p-6 bg-slate-900 border-slate-800">
-  //         <div className="flex flex-col items-center justify-center py-8">
-  //           <Loader2 className="h-12 w-12 animate-spin text-blue-500 mb-4" />
-  //           <p className="text-slate-300 text-center">
-  //             處理中...<br/>
-  //             <span className="text-sm text-slate-400">已耗時: {elapsedTime}</span>
-  //           </p>
-  //         </div>
-  //       </Card>
-  //     );
-  //   }
-
   return (
+
     <Card className="p-6 bg-slate-900 border-slate-800">
+      {transcriptProgress === 100 && (
+        <div className="mb-4">
+          <Label className="text-sm font-medium text-slate-300 mb-2 block">音頻播放</Label>
+          <audio 
+            controls 
+            className="w-full" 
+            src={audioUrl}
+          />
+        </div>
+      )}
       <div className="flex justify-between items-center mb-4">
         <Label className="text-sm font-medium text-slate-300">逐字稿</Label>
         <div className="flex gap-2">
@@ -117,7 +114,7 @@ export function TranscriptDisplay({
       </div>
       <div>
         <div className="text-slate-400 text-sm mb-2">
-          {`進度 ${transcriptProgress} %`}
+          {transcriptProgress !== null &&`進度 ${transcriptProgress} %`}
         </div>
         <Tabs defaultValue="text" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-800">
