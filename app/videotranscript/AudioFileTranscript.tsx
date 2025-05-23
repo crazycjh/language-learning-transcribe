@@ -45,7 +45,7 @@ export function AudioFileTranscript({
 
   // 更新計時器
   React.useEffect(() => {
-    socketRef.current = io("http://localhost:3000");
+    socketRef.current = io("http://localhost:5566");
     console.log("socketRef.current ==== ", socketRef.current);
     let intervalId: NodeJS.Timeout;
 
@@ -125,7 +125,7 @@ export function AudioFileTranscript({
 
       // 上傳檔案
       const res = await axios.post<TranscribeResponse>(
-        "http://localhost:3000/api/transcribe",
+        "http://localhost:5566/api/transcribe",
         formData,
         {
           headers: {
@@ -211,7 +211,7 @@ export function AudioFileTranscript({
               accept=".wav"
               onChange={handleFileSelect}
               disabled={isLoading}
-              className="flex-grow bg-slate-800 border-slate-700 text-slate-100"
+              className="flex-grow bg-slate-800 border-slate-700 text-slate-100 file:text-slate-400 hover:bg-slate-500"
             />
           </div>
           <Button

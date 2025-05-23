@@ -33,16 +33,16 @@ export default function VideoDownloadTranscript() {
           </div>
         </noscript>
         <Suspense fallback={<div>載入中...</div>}>
-          <Tabs defaultValue="youtube" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="youtube">Youtube 轉錄</TabsTrigger>
-              <TabsTrigger value="audio">音訊檔案轉錄</TabsTrigger>
+          <Tabs defaultValue="audio" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-800">
+              <TabsTrigger value="audio" className="cursor-pointer data-[state=active]:bg-slate-700 data-[state=active]:text-slate-100 text-slate-400">音訊檔案轉錄</TabsTrigger>
+              <TabsTrigger value="youtube" className="cursor-pointer data-[state=active]:bg-slate-700 data-[state=active]:text-slate-100 text-slate-400 ">Youtube 轉錄</TabsTrigger>
             </TabsList>
-            <TabsContent value="youtube">
-              <YoutubeTranscriptClient />
-            </TabsContent>
             <TabsContent value="audio">
               <AudioFileTranscriptClient />
+            </TabsContent>
+            <TabsContent value="youtube">
+              <YoutubeTranscriptClient />
             </TabsContent>
           </Tabs>
         </Suspense>

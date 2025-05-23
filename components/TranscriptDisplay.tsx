@@ -55,7 +55,7 @@ export function TranscriptDisplay({
   return (
 
     <Card className="p-6 bg-slate-900 border-slate-800">
-      {transcriptProgress === 100 && (
+      {transcriptProgress === 100 && audioUrl && (
         <div className="mb-4">
           <Label className="text-sm font-medium text-slate-300 mb-2 block">音頻播放</Label>
           <audio 
