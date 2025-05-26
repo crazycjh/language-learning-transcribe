@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, Upload } from "lucide-react";
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
+import SocketManager from "@/lib/socketManager";
 
 interface AudioFileTranscriptProps {
   onTranscriptUpdate: (text: string, srt: string, audioFile?: File) => void;
@@ -39,16 +40,29 @@ export function AudioFileTranscript({
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const jobIdRef = useRef<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const transcriptRef = useRef("");
   const transcriptSRTRef = useRef("");
 
+  // 初始化 socket 連接
+  React.useEffect(() => {
+    socketRef.current = SocketManager.getSocket();
+    console.log("socketRef.current audio : ", socketRef.current);
+    return () => {
+      // 清理所有相關的事件監聽器
+      if (jobIdRef.current) {
+        console.log("移除訂閱 jobId : ", jobIdRef.current);
+        socketRef.current?.emit("unsubscribe-job", jobIdRef.current);
+      }
+      SocketManager.removeAllListeners("subscribed");
+      SocketManager.removeAllListeners("message");
+    };
+  }, []);
+
   // 更新計時器
   React.useEffect(() => {
-    socketRef.current = io("http://localhost:5566");
-    console.log("socketRef.current ==== ", socketRef.current);
     let intervalId: NodeJS.Timeout;
-
     if (isLoading && startTime) {
       intervalId = setInterval(() => {
         const now = Date.now();
@@ -125,7 +139,7 @@ export function AudioFileTranscript({
 
       // 上傳檔案
       const res = await axios.post<TranscribeResponse>(
-        "http://localhost:5566/api/transcribe",
+        "http://localhost:8001/api/transcribe",
         formData,
         {
           headers: {
@@ -138,6 +152,11 @@ export function AudioFileTranscript({
         // 監聽 'subscribed' 事件
         console.log(`已訂閱任務: ${data.jobId}`);
       });
+
+      socketRef.current?.on("unsubscribe-job",(data) => {
+        console.log(`已取消訂閱任務: ${data.jobId}`); // 用來確認是否有訂閱成功
+      });
+
       socketRef.current?.on("message", (data) => {
         if (JSON.parse(data).event === "transcription-segment") {
           const newSegment = JSON.parse(data).data.segment.text;
@@ -164,7 +183,10 @@ export function AudioFileTranscript({
           setIsLoading(false);
         }
       });
-      socketRef.current?.emit("subscribe-job", res.data.jobId);
+      const newJobId = res.data.jobId;
+      jobIdRef.current = newJobId;
+      console.log("上傳回應:", newJobId, res.data.status);
+      socketRef.current?.emit("subscribe-job", newJobId);
       // 處理回應
 
       console.log("上傳回應:", res.data.jobId, res.data.status);
