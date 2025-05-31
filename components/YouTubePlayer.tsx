@@ -89,26 +89,25 @@ export function YouTubePlayer({
   useEffect(() => {
     // 僅客戶端執行
     if (typeof window === 'undefined' || !containerRef.current) return;
-    
+
     // 檢查是否需要重新創建播放器
     const prevProps = prevPropsRef.current;
-    const needsRecreate = videoId !== prevProps.videoId || 
-                          width !== prevProps.width || 
+    const needsRecreate = videoId !== prevProps.videoId ||
+                          width !== prevProps.width ||
                           height !== prevProps.height ||
                           !iframeRef.current;
-    
+
     // 更新參考值
     prevPropsRef.current = { videoId, width, height };
-    
+
     // 如果不需要重新創建，則退出
     if (!needsRecreate) return;
-    
+
     // 清理現有資源
     cleanupResources();
-    
     // 清除容器內容
     containerRef.current.innerHTML = '';
-    
+
     // 創建新的iframe元素
     const iframe = document.createElement('iframe');
     iframe.width = `${width}px`;
@@ -117,15 +116,32 @@ export function YouTubePlayer({
     iframe.frameBorder = "0";
     iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
     iframe.allowFullscreen = true;
-    
+
     // 添加到DOM
     containerRef.current.appendChild(iframe);
     iframeRef.current = iframe;
-    
+
     // 添加消息事件監聽
     window.addEventListener('message', handleMessage);
-    
-    
+
+    // 新增：每500ms查詢一次真實播放時間
+    // 這裡會定期向 YouTube iframe 發送 getCurrentTime 指令，取得實際播放時間
+    let ytTimer: number | null = null;
+    function postGetCurrentTime() {
+      if (iframe.contentWindow) {
+        iframe.contentWindow.postMessage(
+          JSON.stringify({
+            event: 'listening',
+            id: 1,
+            channel: 'widget',
+            func: 'getCurrentTime'
+          }),
+          '*'
+        );
+      }
+    }
+    ytTimer = window.setInterval(postGetCurrentTime, 500);
+
     // 通知播放器準備就緒
     const playerInterface = createPlayerInterface();
     iframe.onload = () => {
@@ -133,17 +149,38 @@ export function YouTubePlayer({
         onPlayerReady(playerInterface);
       }
     };
-    
+
     // 清理函數
     return () => {
       cleanupResources();
       window.removeEventListener('message', handleMessage);
+      if (ytTimer) window.clearInterval(ytTimer);
       if (containerRef.current) {
         containerRef.current.innerHTML = '';
       }
       iframeRef.current = null;
     };
   }, [videoId, width, height, onPlayerReady, handleMessage, cleanupResources, createPlayerInterface]);
+
+  // 處理 YouTube iframe 回傳播放時間，並呼叫 onTimeUpdate
+  useEffect(() => {
+    function ytTimeListener(event: MessageEvent) {
+      if (!iframeRef.current || event.source !== iframeRef.current.contentWindow) return;
+      try {
+        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        if (data.event === 'infoDelivery' && data.info && typeof data.info.currentTime === 'number') {
+          currentTimeRef.current = data.info.currentTime;
+          if (typeof onTimeUpdate === 'function') {
+            onTimeUpdate(data.info.currentTime);
+          }
+        }
+      } catch {}
+    }
+    window.addEventListener('message', ytTimeListener);
+    return () => {
+      window.removeEventListener('message', ytTimeListener);
+    };
+  }, [onTimeUpdate]);
 
   return <div className="youtube-player-container" ref={containerRef}></div>;
 }
