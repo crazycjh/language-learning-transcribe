@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 export const config = {
     matcher: '/youtube/sse'
 };
-
+// no uesed anymore
 export async function middleware(request: NextRequest) {
     console.log("pathname : ------",request.nextUrl.pathname);
     if(request.nextUrl.pathname.startsWith("/youtube/sse")) {

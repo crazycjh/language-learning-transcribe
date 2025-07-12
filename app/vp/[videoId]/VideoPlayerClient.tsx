@@ -7,24 +7,28 @@ import {
 } from "@/components/YouTubePlayer";
 import { SrtTranscriptViewer } from "@/components/SrtTranscriptViewer";
 import { getSRT } from "@/lib/r2-service";
-
+// 4voKeMm3u1Y
 export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [srtContent, setSrtContent] = useState("");
   const [player, setPlayer] = useState<YouTubePlayerInterface | null>(null);
 
-  // useEffect(() => {
-  //   async function loadSRT() {
-  //     try {
-  //       const content = await getSRT(videoId);
-  //       setSrtContent(content);
-  //     } catch (error) {
-  //       console.error('載入逐字稿失敗:', error);
-  //     }
-  //   }
+  useEffect(() => {
+    async function loadSRT() {
+      try {
+        const response = await fetch(`/api/srt/${videoId}`);
+        if (!response.ok) {
+          throw new Error("無法取得 SRT");
+        }
+        const content = await response.text();
+        setSrtContent(content);
+      } catch (error) {
+        console.error("載入逐字稿失敗:", error);
+      }
+    }
 
-  //   loadSRT();
-  // }, [videoId]);
+    loadSRT();
+  }, [videoId]);
 
   const handleTimeUpdate = (time: number) => {
     setCurrentTime(time);
@@ -37,7 +41,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 p-4">
+    <div className="flex flex-col md:flex-row gap-4 p-10 md:h-screen bg-slate-900">
       <div className="w-full md:w-1/2">
         <YouTubePlayer
           videoId={videoId}
@@ -46,7 +50,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
         />
         <div>{currentTime}</div>
         <button
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          className="mt-4 px-4 py-2 bg-slate-700 text-slate-100 rounded hover:bg-slate-800 transition-colors"
           onClick={() => {
             if (player) {
               player.seekTo(100);
@@ -58,11 +62,11 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
         </button>
       </div>
       <div className="w-full md:w-1/2">
-        {/* <SrtTranscriptViewer
+        <SrtTranscriptViewer
           srtContent={srtContent}
           currentTime={currentTime}
           onSegmentClick={handleSegmentClick}
-        /> */}
+        />
       </div>
     </div>
   );

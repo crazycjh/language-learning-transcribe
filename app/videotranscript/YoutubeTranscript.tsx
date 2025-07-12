@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Youtube } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
@@ -28,6 +29,7 @@ export function YoutubeTranscript({
   onAudioReady,
 }: YoutubeTranscriptProps) {
   const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [wordLevel, setWordLevel] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -127,6 +129,7 @@ export function YoutubeTranscript({
         `http://localhost:8001/api/transcribe-youtube`,
         {
           url: youtubeUrl,
+          wordLevel: wordLevel,
         }
       );
       
@@ -236,51 +239,69 @@ export function YoutubeTranscript({
             影片網址:
           </Label>
         </div>
-        <div className="flex space-x-2">
-          <div className="relative flex-grow">
-            {!youtubeUrl && (
-              <Youtube className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-            )}
-            <Input
-              type="text"
-              id="youtubeUrl"
-              placeholder="請輸入 YouTube 影片網址"
-              className={`flex-grow bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-slate-100 selection:bg-blue-500/50 ${
-                !youtubeUrl ? "pl-9" : ""
-              }`}
-              value={youtubeUrl}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setYoutubeUrl(e.target.value)
-              }
-            />
-          </div>
+        <div className="space-y-3">
           <div className="flex space-x-2">
-            <Button
-              onClick={handleProcessYoutube}
-              disabled={isLoading || !youtubeUrl}
-              variant="default"
-              className={`bg-blue-600 hover:bg-blue-700 text-white ${
-                isLoading ? "cursor-default" : "cursor-pointer"
-              }`}
-            >
-              {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  處理中...
-                </span>
-              ) : (
-                "開始處理"
+            <div className="relative flex-grow">
+              {!youtubeUrl && (
+                <Youtube className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
               )}
-            </Button>
-            {audioData && (
+              <Input
+                type="text"
+                id="youtubeUrl"
+                placeholder="請輸入 YouTube 影片網址"
+                className={`flex-grow bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-slate-100 selection:bg-blue-500/50 ${
+                  !youtubeUrl ? "pl-9" : ""
+                }`}
+                value={youtubeUrl}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setYoutubeUrl(e.target.value)
+                }
+              />
+            </div>
+            <div className="flex space-x-2">
               <Button
-                onClick={handleDownloadAudio}
-                variant="secondary"
-                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={handleProcessYoutube}
+                disabled={isLoading || !youtubeUrl}
+                variant="default"
+                className={`bg-blue-600 hover:bg-blue-700 text-white ${
+                  isLoading ? "cursor-default" : "cursor-pointer"
+                }`}
               >
-                下載音檔
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    處理中...
+                  </span>
+                ) : (
+                  "開始處理"
+                )}
               </Button>
-            )}
+              {audioData && (
+                <Button
+                  onClick={handleDownloadAudio}
+                  variant="secondary"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  下載音檔
+                </Button>
+              )}
+            </div>
+          </div>
+          
+          {/* Word Level Checkbox */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="wordLevel"
+              checked={wordLevel}
+              onCheckedChange={(checked) => setWordLevel(checked as boolean)}
+              className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+            />
+            <Label
+              htmlFor="wordLevel"
+              className="text-sm font-medium text-slate-300 cursor-pointer"
+            >
+              啟用 Word Level 轉錄 (更精確的時間戳記)
+            </Label>
           </div>
         </div>
 

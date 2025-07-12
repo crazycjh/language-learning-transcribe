@@ -14,6 +14,7 @@ interface YouTubePlayerProps {
   width?: number;
   height?: number;
   onPlayerReady?: (player: YouTubePlayerInterface) => void;
+  autoPlay?: boolean;
 }
 
 export function YouTubePlayer({
@@ -21,7 +22,8 @@ export function YouTubePlayer({
   onTimeUpdate,
   width = 640,
   height = 360,
-  onPlayerReady
+  onPlayerReady,
+  autoPlay = true
 }: YouTubePlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -55,6 +57,7 @@ export function YouTubePlayer({
         currentTimeRef.current = seconds;
         if (iframeRef.current?.contentWindow) {
           try {
+            // 跳轉到指定時間
             iframeRef.current.contentWindow.postMessage(
               JSON.stringify({
                 event: 'command',
@@ -63,13 +66,24 @@ export function YouTubePlayer({
               }),
               '*'
             );
+            // 如果 autoPlay 為 true，則自動播放
+            if (autoPlay) {
+              iframeRef.current.contentWindow.postMessage(
+                JSON.stringify({
+                  event: 'command',
+                  func: 'playVideo',
+                  args: []
+                }),
+                '*'
+              );
+            }
           } catch {
             console.log('無法控制iframe播放器時間');
           }
         }
       }
     };
-  }, [cleanupResources]);
+  }, [cleanupResources, autoPlay]);
 
   // 處理來自YouTube iframe的消息
   const handleMessage = useCallback((event: MessageEvent) => {
