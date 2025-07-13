@@ -6,6 +6,8 @@ export interface YouTubePlayerInterface {
   destroy: () => void;
   getCurrentTime: () => number;
   seekTo: (seconds: number) => void;
+  playVideo: () => void;
+  pauseVideo: () => void;
 }
 
 interface YouTubePlayerProps {
@@ -81,6 +83,38 @@ export function YouTubePlayer({
             console.log('無法控制iframe播放器時間');
           }
         }
+      },
+      playVideo: () => {
+        if (iframeRef.current?.contentWindow) {
+          try {
+            iframeRef.current.contentWindow.postMessage(
+              JSON.stringify({
+                event: 'command',
+                func: 'playVideo',
+                args: []
+              }),
+              '*'
+            );
+          } catch {
+            console.log('無法控制iframe播放器播放');
+          }
+        }
+      },
+      pauseVideo: () => {
+        if (iframeRef.current?.contentWindow) {
+          try {
+            iframeRef.current.contentWindow.postMessage(
+              JSON.stringify({
+                event: 'command',
+                func: 'pauseVideo',
+                args: []
+              }),
+              '*'
+            );
+          } catch {
+            console.log('無法控制iframe播放器暫停');
+          }
+        }
       }
     };
   }, [cleanupResources, autoPlay]);
@@ -104,6 +138,8 @@ export function YouTubePlayer({
     // 僅客戶端執行
     if (typeof window === 'undefined' || !containerRef.current) return;
 
+    const container = containerRef.current;
+
     // 檢查是否需要重新創建播放器
     const prevProps = prevPropsRef.current;
     const needsRecreate = videoId !== prevProps.videoId ||
@@ -120,19 +156,19 @@ export function YouTubePlayer({
     // 清理現有資源
     cleanupResources();
     // 清除容器內容
-    containerRef.current.innerHTML = '';
+    container.innerHTML = '';
 
     // 創建新的iframe元素
     const iframe = document.createElement('iframe');
     iframe.width = `${width}px`;
     iframe.height = `${height}px`;
-    iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}&controls=1&rel=0&modestbranding=1`;
-    iframe.frameBorder = "0";
+    iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}&controls=1&rel=0&modestbranding=1&iv_load_policy=3`;
+    iframe.style.border = "0";
     iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
     iframe.allowFullscreen = true;
 
     // 添加到DOM
-    containerRef.current.appendChild(iframe);
+    container.appendChild(iframe);
     iframeRef.current = iframe;
 
     // 添加消息事件監聽
@@ -169,8 +205,9 @@ export function YouTubePlayer({
       cleanupResources();
       window.removeEventListener('message', handleMessage);
       if (ytTimer) window.clearInterval(ytTimer);
-      if (containerRef.current) {
-        containerRef.current.innerHTML = '';
+      const container = containerRef.current;
+      if (container) {
+        container.innerHTML = '';
       }
       iframeRef.current = null;
     };

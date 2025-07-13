@@ -1,53 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Copy, Check } from "lucide-react";
+import { parseSRT, type Segment } from "@/lib/srt-utils";
 
 interface SrtTranscriptViewerProps {
   srtContent: string;
   currentTime: number;
   onSegmentClick: (time: number) => void;
-}
-
-interface Segment {
-  id: number;
-  startTime: number;
-  endTime: number;
-  text: string;
-}
-
-function parseSRT(srtContent: string): Segment[] {
-  const segments: Segment[] = [];
-  const blocks = srtContent.trim().split('\n\n');
-  
-  for (const block of blocks) {
-    const lines = block.split('\n');
-    if (lines.length < 3) continue;
-    
-    const id = parseInt(lines[0]);
-    const times = lines[1].split(' --> ');
-    const text = lines.slice(2).join('\n');
-    
-    // 將時間字串 "00:00:00,000" 轉換為秒數
-    const timeToSeconds = (timeStr: string) => {
-      const [hours, minutes, seconds] = timeStr.split(':');
-      const [secs, ms] = seconds.split(',');
-      return parseInt(hours) * 3600 + 
-             parseInt(minutes) * 60 + 
-             parseInt(secs) +
-             parseInt(ms) / 1000;
-    };
-    
-    segments.push({
-      id,
-      startTime: timeToSeconds(times[0]),
-      endTime: timeToSeconds(times[1]),
-      text
-    });
-  }
-  
-  return segments;
 }
 
 export function SrtTranscriptViewer({
@@ -58,6 +19,8 @@ export function SrtTranscriptViewer({
   const [segments, setSegments] = useState<Segment[]>([]);
   const [activeSegmentId, setActiveSegmentId] = useState<number | null>(null);
   const [copiedSegmentId, setCopiedSegmentId] = useState<number | null>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const segmentRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   
   // 解析 SRT 內容
   useEffect(() => {
@@ -67,6 +30,28 @@ export function SrtTranscriptViewer({
     }
   }, [srtContent]);
   
+  // 智慧滾動函數
+  const scrollToSegment = (segmentId: number) => {
+    const segmentElement = segmentRefs.current[segmentId];
+    const container = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
+    
+    if (!segmentElement || !container) return;
+    
+    const containerHeight = container.clientHeight;
+    const elementTop = segmentElement.offsetTop;
+    
+    // 理想位置：距頂部100px
+    const idealScrollTop = elementTop - 300;
+    
+    // 最大可滾動距離
+    const maxScroll = container.scrollHeight - containerHeight;
+    
+    // 限制在可滾動範圍內
+    const finalScrollTop = Math.max(0, Math.min(idealScrollTop, maxScroll));
+    
+    container.scrollTo({ top: finalScrollTop, behavior: 'smooth' });
+  };
+
   // 更新當前活動片段
   useEffect(() => {
     const activeSegment = segments.find(
@@ -74,13 +59,21 @@ export function SrtTranscriptViewer({
     );
     setActiveSegmentId(activeSegment?.id || null);
   }, [currentTime, segments]);
+
+  // 當活動片段改變時自動滾動
+  useEffect(() => {
+    if (activeSegmentId !== null) {
+      scrollToSegment(activeSegmentId);
+    }
+  }, [activeSegmentId]);
   
   return (
     <div className="transcript-container h-full bg-slate-900">
-      <ScrollArea className="h-full pt-4 px-4 space-y-4 border border-slate-800 bg-slate-950/50 rounded-md p-4">
+      <ScrollArea ref={scrollAreaRef} className="h-full pt-4 px-4 space-y-4 border border-slate-800 bg-slate-950/50 rounded-md p-4">
         {segments.map((segment) => (
           <div
             key={segment.id}
+            ref={(el) => { segmentRefs.current[segment.id] = el; }}
             className={`segment p-2 rounded cursor-pointer transition-colors flex items-center justify-between gap-2
               ${activeSegmentId === segment.id 
                 ? 'bg-slate-800 dark:bg-slate-900' 
@@ -98,7 +91,7 @@ export function SrtTranscriptViewer({
                     await navigator.clipboard.writeText(segment.text);
                     setCopiedSegmentId(segment.id);
                     setTimeout(() => setCopiedSegmentId(null), 2000);
-                  } catch (err) {
+                  } catch {
                     // 可選：處理複製失敗
                   }
                 }}
