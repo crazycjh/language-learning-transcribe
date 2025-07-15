@@ -22,8 +22,8 @@ interface YouTubePlayerProps {
 export function YouTubePlayer({
   videoId,
   onTimeUpdate,
-  width = 640,
-  height = 360,
+  width,
+  height,
   onPlayerReady,
   autoPlay = true
 }: YouTubePlayerProps) {
@@ -143,8 +143,7 @@ export function YouTubePlayer({
     // 檢查是否需要重新創建播放器
     const prevProps = prevPropsRef.current;
     const needsRecreate = videoId !== prevProps.videoId ||
-                          width !== prevProps.width ||
-                          height !== prevProps.height ||
+                          (width && height && (width !== prevProps.width || height !== prevProps.height)) ||
                           !iframeRef.current;
 
     // 更新參考值
@@ -160,8 +159,18 @@ export function YouTubePlayer({
 
     // 創建新的iframe元素
     const iframe = document.createElement('iframe');
-    iframe.width = `${width}px`;
-    iframe.height = `${height}px`;
+    
+    // 如果有指定寬高，使用固定尺寸，否則使用響應式設計
+    if (width && height) {
+      iframe.width = `${width}px`;
+      iframe.height = `${height}px`;
+    } else {
+      // 響應式設計：使用 100% 寬度和 16:9 比例
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.aspectRatio = "16 / 9";
+    }
+    
     iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}&controls=1&rel=0&modestbranding=1&iv_load_policy=3`;
     iframe.style.border = "0";
     iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
@@ -233,5 +242,11 @@ export function YouTubePlayer({
     };
   }, [onTimeUpdate]);
 
-  return <div className="youtube-player-container" ref={containerRef}></div>;
+  return (
+    <div 
+      className={`youtube-player-container ${!width && !height ? 'w-full' : ''}`}
+      ref={containerRef}
+      style={!width && !height ? { aspectRatio: '16 / 9' } : undefined}
+    ></div>
+  );
 }

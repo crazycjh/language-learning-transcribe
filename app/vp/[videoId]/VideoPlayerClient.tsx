@@ -6,8 +6,8 @@ import {
   type YouTubePlayerInterface,
 } from "@/components/YouTubePlayer";
 import { SrtTranscriptViewer } from "@/components/SrtTranscriptViewer";
-import { DictationPractice } from "@/components/DictationPractice";
-import { getSRT } from "@/lib/r2-service";
+import { BlanksFillPractice } from "@/components/BlanksFillPractice";
+import { SentenceDisplay } from "@/components/SentenceDisplay";
 import { parseSRT, type Segment } from "@/lib/srt-utils";
 
 // 4voKeMm3u1Y
@@ -17,6 +17,8 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   const [player, setPlayer] = useState<YouTubePlayerInterface | null>(null);
   const [isPracticeMode, setIsPracticeMode] = useState(false);
   const [segments, setSegments] = useState<Segment[]>([]);
+  const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   useEffect(() => {
     async function loadSRT() {
@@ -49,8 +51,23 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     }
   };
 
+  const handlePreviousSegment = () => {
+    if (currentSegmentIndex > 0) {
+      setCurrentSegmentIndex(currentSegmentIndex - 1);
+      setShowFeedback(false);
+    }
+  };
+
+  const handleNextSegment = () => {
+    if (currentSegmentIndex < segments.length - 1) {
+      setCurrentSegmentIndex(currentSegmentIndex + 1);
+      setShowFeedback(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col md:flex-row gap-4 p-10 md:h-screen bg-slate-900">
+    <div className="bg-slate-900 min-h-screen">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 p-10 md:h-screen">
       <div className="w-full md:w-1/2">
         <YouTubePlayer
           videoId={videoId}
@@ -58,25 +75,55 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
           onPlayerReady={setPlayer}
         />
         <div className="mt-4 flex items-center gap-4">
-          <span className="text-slate-400">當前時間: {Math.round(currentTime)}s</span>
-          <button
-            className={`px-4 py-2 rounded transition-colors ${
-              isPracticeMode 
-                ? 'bg-slate-700 text-slate-100 hover:bg-slate-600' 
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
-            onClick={() => setIsPracticeMode(!isPracticeMode)}
-          >
-            {isPracticeMode ? '切換到觀看模式' : '切換到練習模式'}
-          </button>
+          {/* <span className="text-slate-400">當前時間: {Math.round(currentTime)}s</span> */}
+          <div className="flex gap-2">
+            <button
+              className={`px-4 py-2 rounded transition-colors ${
+                !isPracticeMode
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+              onClick={() => setIsPracticeMode(false)}
+            >
+              觀看模式
+            </button>
+            <button
+              className={`px-4 py-2 rounded transition-colors ${
+                isPracticeMode
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+              onClick={() => setIsPracticeMode(true)}
+            >
+              聽打練習
+            </button>
+          </div>
         </div>
+
+        {/* 練習模式下顯示句子信息（僅在電腦版左右分欄時） */}
+        {isPracticeMode && segments.length > 0 && (
+          <div className="hidden md:block">
+            <SentenceDisplay
+              segments={segments}
+              currentSegmentIndex={currentSegmentIndex}
+              currentTime={currentTime}
+              showFeedback={showFeedback}
+              onPreviousSegment={handlePreviousSegment}
+              onNextSegment={handleNextSegment}
+            />
+          </div>
+        )}
       </div>
       <div className="w-full md:w-1/2">
         {isPracticeMode ? (
-          <DictationPractice
+          <BlanksFillPractice
             segments={segments}
             player={player}
             currentTime={currentTime}
+            currentSegmentIndex={currentSegmentIndex}
+            showFeedback={showFeedback}
+            onSegmentIndexChange={setCurrentSegmentIndex}
+            onFeedbackChange={setShowFeedback}
           />
         ) : (
           <SrtTranscriptViewer
@@ -85,6 +132,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
             onSegmentClick={handleSegmentClick}
           />
         )}
+      </div>
       </div>
     </div>
   );

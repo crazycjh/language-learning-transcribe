@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Play, Pause, RotateCcw, SkipForward, SkipBack, Repeat, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Pause, RotateCcw, Repeat, SkipBack, SkipForward } from "lucide-react";
 import { type Segment } from "@/lib/srt-utils";
 
 import { type YouTubePlayerInterface } from "@/components/YouTubePlayer";
@@ -11,13 +11,15 @@ interface DictationPracticeProps {
   segments: Segment[];
   player: YouTubePlayerInterface | null;
   currentTime: number;
+  currentSegmentIndex: number;
+  showFeedback: boolean;
+  onSegmentIndexChange: (index: number) => void;
+  onFeedbackChange: (show: boolean) => void;
 }
 
 interface PracticeState {
-  currentSegmentIndex: number;
   userInput: string;
   isSegmentComplete: boolean;
-  showFeedback: boolean;
   accuracy: number;
   attemptCount: number;
   attemptHistory: Array<{
@@ -30,13 +32,15 @@ interface PracticeState {
 export function DictationPractice({
   segments,
   player,
-  currentTime
+  currentTime,
+  currentSegmentIndex,
+  showFeedback,
+  onSegmentIndexChange,
+  onFeedbackChange
 }: DictationPracticeProps) {
   const [practiceState, setPracticeState] = useState<PracticeState>({
-    currentSegmentIndex: 0,
     userInput: '',
     isSegmentComplete: false,
-    showFeedback: false,
     accuracy: 0,
     attemptCount: 0,
     attemptHistory: []
@@ -51,9 +55,9 @@ export function DictationPractice({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const loopTimeoutRef = useRef<NodeJS.Timeout | null>(null); // 新增：循環延遲的 timeout reference
 
-  const currentSegment = segments[practiceState.currentSegmentIndex];
-  const previousSegment = practiceState.currentSegmentIndex > 0 ? segments[practiceState.currentSegmentIndex - 1] : null;
-  const nextSegment = practiceState.currentSegmentIndex < segments.length - 1 ? segments[practiceState.currentSegmentIndex + 1] : null;
+  const currentSegment = segments[currentSegmentIndex];
+  const previousSegment = currentSegmentIndex > 0 ? segments[currentSegmentIndex - 1] : null;
+  const nextSegment = currentSegmentIndex < segments.length - 1 ? segments[currentSegmentIndex + 1] : null;
 
   // 計算當前句子播放百分比
   const calculateSegmentProgress = (): number => {
@@ -160,18 +164,19 @@ export function DictationPractice({
 
   // 跳到上一句
   const goToPreviousSegment = () => {
-    if (practiceState.currentSegmentIndex > 0) {
+    if (currentSegmentIndex > 0) {
       // 先暫停當前播放
       if (player && isPlaying) {
         player.pauseVideo();
       }
       
+      onSegmentIndexChange(currentSegmentIndex - 1);
+      onFeedbackChange(false);
+      
       setPracticeState(prev => ({
         ...prev,
-        currentSegmentIndex: prev.currentSegmentIndex - 1,
         userInput: '',
         isSegmentComplete: false,
-        showFeedback: false,
         accuracy: 0,
         attemptCount: 0,
         attemptHistory: []
@@ -188,18 +193,19 @@ export function DictationPractice({
 
   // 跳到下一句
   const goToNextSegment = () => {
-    if (practiceState.currentSegmentIndex < segments.length - 1) {
+    if (currentSegmentIndex < segments.length - 1) {
       // 先暫停當前播放
       if (player && isPlaying) {
         player.pauseVideo();
       }
       
+      onSegmentIndexChange(currentSegmentIndex + 1);
+      onFeedbackChange(false);
+      
       setPracticeState(prev => ({
         ...prev,
-        currentSegmentIndex: prev.currentSegmentIndex + 1,
         userInput: '',
         isSegmentComplete: false,
-        showFeedback: false,
         accuracy: 0,
         attemptCount: 0,
         attemptHistory: []
@@ -251,7 +257,6 @@ export function DictationPractice({
     setPracticeState(prev => ({
       ...prev,
       isSegmentComplete: true,
-      showFeedback: true,
       accuracy,
       attemptCount: prev.attemptCount + 1,
       attemptHistory: [
@@ -263,6 +268,8 @@ export function DictationPractice({
         }
       ]
     }));
+
+    onFeedbackChange(true);
 
     // 暫停播放並清除暫停時間（進入反饋模式）
     if (player && (isPlaying || isLoopWaiting)) {
@@ -280,10 +287,11 @@ export function DictationPractice({
     setPracticeState(prev => ({
       ...prev,
       userInput: '',
-      isSegmentComplete: false,
-      showFeedback: false
+      isSegmentComplete: false
       // 保留 attemptCount 和 attemptHistory，不重置
     }));
+    
+    onFeedbackChange(false);
     
     // 清理播放狀態，讓用戶重新開始
     clearLoopTimeout();
@@ -351,10 +359,10 @@ export function DictationPractice({
 
   // 自動聚焦輸入框
   useEffect(() => {
-    if (inputRef.current && !practiceState.showFeedback) {
+    if (inputRef.current && !showFeedback) {
       inputRef.current.focus();
     }
-  }, [practiceState.currentSegmentIndex, practiceState.showFeedback]);
+  }, [currentSegmentIndex, showFeedback]);
 
   // 組件卸載時清理 timeout
   useEffect(() => {
@@ -381,105 +389,18 @@ export function DictationPractice({
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-xl font-semibold text-slate-100">聽打練習模式</h2>
           <span className="text-slate-400">
-            {practiceState.currentSegmentIndex + 1} / {segments.length}
+            {currentSegmentIndex + 1} / {segments.length}
           </span>
         </div>
         <div className="w-full bg-slate-800 rounded-full h-2">
           <div 
             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${((practiceState.currentSegmentIndex + 1) / segments.length) * 100}%` }}
+            style={{ width: `${((currentSegmentIndex + 1) / segments.length) * 100}%` }}
           />
         </div>
       </div>
 
       <ScrollArea className="flex-1 p-4">
-        {/* 句子顯示區域 */}
-        <div className="mb-6">
-          <h3 className="text-lg font-medium text-slate-200 mb-3">
-            當前句子 
-            {currentSegment && (
-              <span className="text-sm font-normal text-slate-400 ml-2">
-                ({Math.round(segmentProgress)}% 已播放)
-              </span>
-            )}
-          </h3>
-          
-          {/* 上一句預覽 */}
-          {previousSegment && (
-            <button
-              onClick={goToPreviousSegment}
-              className="mb-2 w-full p-3 bg-slate-900/50 hover:bg-slate-800/70 rounded text-sm text-slate-500 hover:text-slate-300 border-l-2 border-slate-700 hover:border-slate-500 transition-all duration-200 text-left group cursor-pointer"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <span className="text-xs text-slate-600 group-hover:text-slate-400">上一句：</span>
-                  <p className="opacity-70 group-hover:opacity-90 mt-1">{previousSegment.text}</p>
-                </div>
-                <ChevronLeft className="w-4 h-4 text-slate-600 group-hover:text-slate-400 ml-2 flex-shrink-0" />
-              </div>
-            </button>
-          )}
-          
-          {/* 當前句子 */}
-          <div className="bg-slate-800 rounded-lg p-4 border-l-4 border-blue-600">
-            <p className="text-slate-100 text-lg leading-relaxed mb-3">
-              {practiceState.showFeedback ? currentSegment.text : "請先聽音頻，然後在下方輸入您聽到的內容"}
-            </p>
-            
-            {/* 播放進度條 */}
-            {currentSegment && (
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-400">
-                  <span>{Math.round(segmentProgress)}%</span>
-                  <span>
-                    {currentTime >= currentSegment.startTime && currentTime <= currentSegment.endTime 
-                      ? `${(currentTime - currentSegment.startTime).toFixed(1)}s` 
-                      : '0.0s'} 
-                    / {(currentSegment.endTime - currentSegment.startTime).toFixed(1)}s
-                  </span>
-                </div>
-                <div className="w-full bg-slate-700 rounded-full h-2">
-                  <div 
-                    className={`h-2 rounded-full transition-all duration-200 ${
-                      isPlaying ? 'bg-blue-500' : 'bg-blue-600'
-                    }`}
-                    style={{ width: `${segmentProgress}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-slate-500">
-                  <span>開始</span>
-                  <span className={`${isPlaying || isLoopWaiting ? 'text-blue-400' : 'text-slate-500'}`}>
-                    {isLoopWaiting 
-                      ? `⏳ 準備重播... ${loopCountdown}s` 
-                      : isPlaying 
-                        ? '🔊 播放中' 
-                        : segmentProgress === 100 
-                          ? '✓ 已完成' 
-                          : '⏸ 暫停'
-                    }
-                  </span>
-                  <span>結束</span>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* 下一句預覽 */}
-          {nextSegment && (
-            <button
-              onClick={goToNextSegment}
-              className="mt-2 w-full p-3 bg-slate-900/50 hover:bg-slate-800/70 rounded text-sm text-slate-500 hover:text-slate-300 border-l-2 border-slate-700 hover:border-slate-500 transition-all duration-200 text-left group cursor-pointer"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <span className="text-xs text-slate-600 group-hover:text-slate-400">下一句：</span>
-                  <p className="opacity-70 group-hover:opacity-90 mt-1">{nextSegment.text}</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 ml-2 flex-shrink-0" />
-              </div>
-            </button>
-          )}
-        </div>
 
         {/* 播放控制 */}
         <div className="mb-6">
@@ -514,14 +435,16 @@ export function DictationPractice({
               }`}
             >
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              {isStarting 
-                ? '啟動中...' 
-                : isLoopWaiting
-                  ? '跳過等待'
-                  : isPlaying 
-                    ? '暫停' 
-                    : (pausedTime !== null ? '繼續' : '播放')
-              }
+              <span className="hidden lg:inline">
+                {isStarting 
+                  ? '啟動中...' 
+                  : isLoopWaiting
+                    ? '跳過等待'
+                    : isPlaying 
+                      ? '暫停' 
+                      : (pausedTime !== null ? '繼續' : '播放')
+                }
+              </span>
             </button>
             
             <button
@@ -529,25 +452,25 @@ export function DictationPractice({
               className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg transition-colors"
             >
               <RotateCcw className="w-4 h-4" />
-              重複
+              <span className="hidden lg:inline">重複</span>
             </button>
 
             <button
               onClick={goToPreviousSegment}
               className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg transition-colors"
-              disabled={practiceState.currentSegmentIndex <= 0}
+              disabled={currentSegmentIndex <= 0}
             >
               <SkipBack className="w-4 h-4" />
-              上一句
+              <span className="hidden lg:inline">上一句</span>
             </button>
 
             <button
               onClick={goToNextSegment}
               className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg transition-colors"
-              disabled={practiceState.currentSegmentIndex >= segments.length - 1}
+              disabled={currentSegmentIndex >= segments.length - 1}
             >
               <SkipForward className="w-4 h-4" />
-              下一句
+              <span className="hidden lg:inline">下一句</span>
             </button>
           </div>
         </div>
@@ -563,11 +486,11 @@ export function DictationPractice({
               onChange={(e) => setPracticeState(prev => ({ ...prev, userInput: e.target.value }))}
               placeholder="請輸入您聽到的內容..."
               className="w-full h-32 p-4 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none"
-              disabled={practiceState.showFeedback}
+              disabled={showFeedback}
             />
           </div>
           
-          {!practiceState.showFeedback && (
+          {!showFeedback && (
             <div className="mt-3 flex gap-2">
               <button
                 onClick={submitInput}
@@ -581,7 +504,7 @@ export function DictationPractice({
         </div>
 
         {/* 反饋區域 */}
-        {practiceState.showFeedback && (
+        {showFeedback && (
           <div className="mb-6">
             <h4 className="text-md font-medium text-slate-200 mb-3">結果反饋：</h4>
             <div className="bg-slate-800 rounded-lg p-4">
@@ -646,7 +569,7 @@ export function DictationPractice({
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={retryCurrentSegment}
-                  className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors flex items-center gap-2"
                 >
                   <RotateCcw className="w-4 h-4" />
                   重新嘗試
@@ -654,28 +577,10 @@ export function DictationPractice({
                 
                 <button
                   onClick={listenAgain}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
                 >
                   <Play className="w-4 h-4" />
                   再聽一次
-                </button>
-
-                <button
-                  onClick={goToPreviousSegment}
-                  className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors flex items-center gap-2"
-                  disabled={practiceState.currentSegmentIndex <= 0}
-                >
-                  <SkipBack className="w-4 h-4" />
-                  上一句
-                </button>
-
-                <button
-                  onClick={goToNextSegment}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
-                  disabled={practiceState.currentSegmentIndex >= segments.length - 1}
-                >
-                  <SkipForward className="w-4 h-4" />
-                  下一句
                 </button>
               </div>
             </div>
