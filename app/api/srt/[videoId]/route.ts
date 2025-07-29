@@ -4,12 +4,11 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { videoId: string } }
 ) {
-  const { videoId } = params;
+  const { videoId } = await params;
   const workerUrl = process.env.WORKER_URL;
   if (!workerUrl) {
     return new Response("WORKER_URL not configured", { status: 500 });
   }
-// https://r2-deepsrt.chchen-zee.workers.dev/srt/4voKeMm3u1Y/default/4voKeMm3u1Y.srt
   try {
     console.log('Fetching SRT for videoId:', videoId);
     console.log('Worker URL:', workerUrl);
