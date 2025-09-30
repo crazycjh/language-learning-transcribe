@@ -82,17 +82,38 @@ const COMMON_WORDS = new Set([
   'my', 'your', 'his', 'our', 'their', 'this', 'that', 'these', 'those'
 ]);
 
+// 提取詞彙部分，保留連字符和縮寫符號
+function cleanWordForBlank(word: string): string {
+  // 保留字母、數字、底線、連字符和縮寫詞中的單引號
+  // 移除開頭和結尾的標點符號，但保留中間的單引號和連字符（如 I've, don't, non-technical）
+  return word
+    .replace(/^[^\w'-]+|[^\w'-]+$/g, '') // 移除開頭和結尾的標點符號（除了單引號和連字符）
+    .toLowerCase();
+}
+
+// 分離詞彙和後續標點符號
+function separateWordAndPunctuation(word: string): { cleanWord: string; leadingPunct: string; trailingPunct: string } {
+  const leadingMatch = word.match(/^([^\w'-]+)/);
+  const trailingMatch = word.match(/([^\w'-]+)$/);
+
+  const leadingPunct = leadingMatch ? leadingMatch[1] : '';
+  const trailingPunct = trailingMatch ? trailingMatch[1] : '';
+  const cleanWord = word.replace(/^[^\w'-]+|[^\w'-]+$/g, '').toLowerCase();
+
+  return { cleanWord, leadingPunct, trailingPunct };
+}
+
 // 生成單個空格項目
 function createBlankItem(word: string, difficulty: BlanksDifficulty, segmentId: number, wordIndex: number): BlankItem {
-  const cleanWord = word.toLowerCase();
+  const cleanWord = cleanWordForBlank(word);
   // 使用穩定的ID：segmentId-wordIndex-cleanWord，確保同一位置的詞匯在所有難度下都有相同ID
   const id = `${segmentId}-${wordIndex}-${cleanWord}`;
-  
+
   let hint: string | undefined;
   if (difficulty === BlanksDifficulty.BEGINNER && cleanWord.length > 1) {
     hint = cleanWord.charAt(0) + '_'.repeat(cleanWord.length - 1);
   }
-  
+
   return {
     id,
     word: cleanWord,
@@ -105,61 +126,39 @@ function createBlankItem(word: string, difficulty: BlanksDifficulty, segmentId: 
 
 // 將普通句子轉換為填空練習句子
 export function convertToBlanksSegment(
-  segment: Segment, 
+  segment: Segment,
   difficulty: BlanksDifficulty
 ): BlanksSegment {
   const words = segment.text.split(/\s+/);
   const blanks: BlankItem[] = [];
-  const displayParts: string[] = [];
-  
+
   words.forEach((word, index) => {
-    // 移除標點符號來判斷是否為常見詞
-    const cleanWord = word.replace(/[^\w]/g, '').toLowerCase();
-    
-    // 跳過空詞或數字
+    // 分離詞彙和標點符號
+    const { cleanWord, leadingPunct, trailingPunct } = separateWordAndPunctuation(word);
+
+    // 跳過空詞或純數字
     if (!cleanWord || /^\d+$/.test(cleanWord)) {
-      displayParts.push(word);
       return;
     }
-    
+
+    // 對於常見詞判斷，移除連字符和單引號（因為常見詞列表中沒有這些形式）
+    const wordForCommonCheck = cleanWord.replace(/[''-]/g, '');
     // 判斷是否需要填空（非常見詞且長度大於2）
-    const shouldBlank = !COMMON_WORDS.has(cleanWord) && cleanWord.length > 2;
-    
+    const shouldBlank = !COMMON_WORDS.has(wordForCommonCheck) && cleanWord.length > 2;
+
     if (shouldBlank) {
       const blankItem = createBlankItem(cleanWord, difficulty, segment.id, index);
       blanks.push(blankItem);
-      
-      // 根據難度生成顯示內容
-      let blankDisplay: string;
-      switch (difficulty) {
-        case BlanksDifficulty.BEGINNER:
-          blankDisplay = `${blankItem.hint} `;
-          break;
-        case BlanksDifficulty.INTERMEDIATE:
-          blankDisplay = `${'_'.repeat(blankItem.length)} `;
-          break;
-        case BlanksDifficulty.ADVANCED:
-          blankDisplay = '_____ ';
-          break;
-      }
-      displayParts.push(blankDisplay);
-    } else {
-      displayParts.push(word);
-    }
-    
-    // 添加空格（除了最後一個詞）
-    if (index < words.length - 1 && !shouldBlank) {
-      displayParts.push(' ');
     }
   });
-  
+
   return {
     id: segment.id,
     startTime: segment.startTime,
     endTime: segment.endTime,
     text: segment.text,
     blanks,
-    displayText: displayParts.join('').trim()
+    displayText: segment.text // 保持原始文本用於顯示
   };
 }
 

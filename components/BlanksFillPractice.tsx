@@ -210,24 +210,27 @@ export function BlanksFillPractice({
     const currentSegment = segments[currentSegmentIndex];
     if (player && currentSegment && !isStarting) {
       setIsStarting(true);
-      setPausedTime(null);
-      
+
       if (isPlaying) {
         player.pauseVideo();
         setIsPlaying(false);
       }
-      
-      player.seekTo(currentSegment.startTime);
-      
+
+      // 如果有暫停時間，從暫停處繼續；否則從片段開頭開始
+      const startTime = pausedTime !== null ? pausedTime : currentSegment.startTime;
+      player.seekTo(startTime);
+
+      // 只在開始播放後才清除暫停時間
       setTimeout(() => {
         if (player) {
           player.playVideo();
           setIsPlaying(true);
           setIsStarting(false);
+          setPausedTime(null); // 移到這裡，確保播放開始後才清除
         }
       }, 100);
     }
-  }, [player, segments, currentSegmentIndex, isStarting, isPlaying]);
+  }, [player, segments, currentSegmentIndex, isStarting, isPlaying, pausedTime]);
 
   const pauseSegment = useCallback(() => {
     if (player) {
@@ -238,7 +241,27 @@ export function BlanksFillPractice({
   }, [player, currentTime]);
 
   const repeatSegment = () => {
-    playCurrentSegment();
+    const currentSegment = segments[currentSegmentIndex];
+    if (player && currentSegment && !isStarting) {
+      setIsStarting(true);
+      setPausedTime(null); // 清除暫停時間，確保從頭播放
+
+      if (isPlaying) {
+        player.pauseVideo();
+        setIsPlaying(false);
+      }
+
+      // 總是從片段開頭開始播放
+      player.seekTo(currentSegment.startTime);
+
+      setTimeout(() => {
+        if (player) {
+          player.playVideo();
+          setIsPlaying(true);
+          setIsStarting(false);
+        }
+      }, 100);
+    }
   };
 
   const skipLoopWait = () => {
@@ -634,23 +657,32 @@ export function BlanksFillPractice({
               /* 初級中級模式：填空練習 */
               <div className="text-slate-100 text-lg leading-relaxed mb-4">
                 {currentBlanksSegment.text.split(/\s+/).map((word, index) => {
-                  const cleanWord = word.replace(/[^\w]/g, '').toLowerCase();
+                  // 分離詞彙和標點符號
+                  const leadingMatch = word.match(/^([^\w'-]+)/);
+                  const trailingMatch = word.match(/([^\w'-]+)$/);
+                  const leadingPunct = leadingMatch ? leadingMatch[1] : '';
+                  const trailingPunct = trailingMatch ? trailingMatch[1] : '';
+                  const cleanWord = word.replace(/^[^\w'-]+|[^\w'-]+$/g, '').toLowerCase();
+
                   const shouldBlank = currentBlanksSegment.blanks.some(blank => blank.word === cleanWord);
-                  
+
                   if (shouldBlank) {
-                    const blank = currentBlanksSegment.blanks.find(blank => blank.word === cleanWord);
+                    const blank = currentBlanksSegment.blanks.find(blank =>
+                      blank.word === cleanWord && blank.id.includes(`-${index}-`)
+                    );
                     if (blank) {
                       return (
-                        <span key={`${index}-${blank.id}`} className="inline-block mx-1">
+                        <span key={`${index}-${blank.id}`} className="inline-block">
+                          {leadingPunct && <span className="text-slate-300">{leadingPunct}</span>}
                           <input
                             type="text"
                             value={blank.userInput}
                             onChange={(e) => updateBlankInput(blank.id, e.target.value)}
                             className={`inline-block px-2 py-1 border-b-2 bg-transparent text-center ${
-                              blank.userInput === '' 
-                                ? 'border-slate-500' 
-                                : blank.isCorrect 
-                                  ? 'border-green-500 text-green-400' 
+                              blank.userInput === ''
+                                ? 'border-slate-500'
+                                : blank.isCorrect
+                                  ? 'border-green-500 text-green-400'
                                   : 'border-red-500 text-red-400'
                             }`}
                             style={{ width: `${Math.max(blank.length * 0.8, 3)}rem` }}
@@ -661,12 +693,14 @@ export function BlanksFillPractice({
                             }
                             disabled={showFeedback}
                           />
+                          {trailingPunct && <span className="text-slate-300">{trailingPunct}</span>}
+                          {index < currentBlanksSegment.text.split(/\s+/).length - 1 && ' '}
                         </span>
                       );
                     }
                   }
-                  
-                  return <span key={index} className="mx-1">{word}</span>;
+
+                  return <span key={index}>{word}{index < currentBlanksSegment.text.split(/\s+/).length - 1 ? ' ' : ''}</span>;
                 })}
               </div>
             )}
