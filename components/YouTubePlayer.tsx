@@ -8,6 +8,7 @@ export interface YouTubePlayerInterface {
   seekTo: (seconds: number) => void;
   playVideo: () => void;
   pauseVideo: () => void;
+  setPlaybackRate: (rate: number) => void;
 }
 
 interface YouTubePlayerProps {
@@ -113,6 +114,22 @@ export function YouTubePlayer({
             );
           } catch {
             console.log('無法控制iframe播放器暫停');
+          }
+        }
+      },
+      setPlaybackRate: (rate: number) => {
+        if (iframeRef.current?.contentWindow) {
+          try {
+            iframeRef.current.contentWindow.postMessage(
+              JSON.stringify({
+                event: 'command',
+                func: 'setPlaybackRate',
+                args: [rate]
+              }),
+              '*'
+            );
+          } catch {
+            console.log('無法控制iframe播放器速度');
           }
         }
       }
