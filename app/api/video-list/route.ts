@@ -1,5 +1,3 @@
-import { NextRequest } from "next/server";
-
 export async function GET() {
   const workerUrl = process.env.WORKER_URL;
   if (!workerUrl) {

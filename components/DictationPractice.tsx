@@ -51,32 +51,11 @@ export function DictationPractice({
   const [pausedTime, setPausedTime] = useState<number | null>(null);
   const [isLooping, setIsLooping] = useState(false); // 新增：循環播放狀態
   const [isLoopWaiting, setIsLoopWaiting] = useState(false); // 新增：循環等待中狀態
-  const [loopCountdown, setLoopCountdown] = useState(0); // 新增：循環倒數計時
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const loopTimeoutRef = useRef<NodeJS.Timeout | null>(null); // 新增：循環延遲的 timeout reference
 
   const currentSegment = segments[currentSegmentIndex];
-  const previousSegment = currentSegmentIndex > 0 ? segments[currentSegmentIndex - 1] : null;
-  const nextSegment = currentSegmentIndex < segments.length - 1 ? segments[currentSegmentIndex + 1] : null;
 
-  // 計算當前句子播放百分比
-  const calculateSegmentProgress = (): number => {
-    if (!currentSegment) return 0;
-    
-    // 如果當前時間在句子範圍內
-    if (currentTime >= currentSegment.startTime && currentTime <= currentSegment.endTime) {
-      const progress = (currentTime - currentSegment.startTime) / (currentSegment.endTime - currentSegment.startTime);
-      return Math.min(Math.max(progress * 100, 0), 100);
-    }
-    
-    // 如果已播放完此句子
-    if (currentTime > currentSegment.endTime) return 100;
-    
-    // 如果還未開始播放此句子
-    return 0;
-  };
-
-  const segmentProgress = calculateSegmentProgress();
 
   // 播放當前句子
   const playCurrentSegment = useCallback(() => {
@@ -312,7 +291,6 @@ export function DictationPractice({
       loopTimeoutRef.current = null;
     }
     setIsLoopWaiting(false);
-    setLoopCountdown(0);
   }, []);
 
   // 監聽播放時間，自動暫停在句子結尾或循環播放
@@ -324,24 +302,11 @@ export function DictationPractice({
           player.pauseVideo();
           setIsPlaying(false);
           setIsLoopWaiting(true);
-          setLoopCountdown(1);
-          
-          // 倒數計時效果
-          const countdownInterval = setInterval(() => {
-            setLoopCountdown(prev => {
-              if (prev <= 1) {
-                clearInterval(countdownInterval);
-                return 0;
-              }
-              return prev - 1;
-            });
-          }, 1000);
-          
+
           // 1秒後重新播放
           loopTimeoutRef.current = setTimeout(() => {
             playCurrentSegment();
             setIsLoopWaiting(false);
-            setLoopCountdown(0);
             loopTimeoutRef.current = null;
           }, 1000);
         }

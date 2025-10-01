@@ -134,7 +134,7 @@ export function convertToBlanksSegment(
 
   words.forEach((word, index) => {
     // 分離詞彙和標點符號
-    const { cleanWord, leadingPunct, trailingPunct } = separateWordAndPunctuation(word);
+    const { cleanWord } = separateWordAndPunctuation(word);
 
     // 跳過空詞或純數字
     if (!cleanWord || /^\d+$/.test(cleanWord)) {

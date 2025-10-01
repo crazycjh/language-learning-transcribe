@@ -20,7 +20,7 @@ export async function GET(
     return new Response(srtContent, {
       headers: { "Content-Type": "text/plain" },
     });
-  } catch (err) {
+  } catch {
     return new Response("Failed to fetch SRT", { status: 500 });
   }
 }

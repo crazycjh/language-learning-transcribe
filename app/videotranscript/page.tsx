@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import dynamic from "next/dynamic";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import YoutubeTranscriptClient from "./youtube-client";
 import AudioFileTranscriptClient from "./audio-client";
