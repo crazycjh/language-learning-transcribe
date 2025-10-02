@@ -110,7 +110,6 @@ function VideoCard({ video }: { video: VideoListEntry }) {
   return (
     <Card className="bg-slate-800 border-slate-700 hover:bg-slate-750 transition-colors">
       <CardHeader className="p-0">
-        {thumbnailUrl}
         <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">
           {imageError ? (
             // Fallback: 顯示漸層背景 + Headphones icon
