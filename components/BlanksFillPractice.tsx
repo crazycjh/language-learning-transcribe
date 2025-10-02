@@ -538,31 +538,31 @@ export function BlanksFillPractice({
   return (
     <div className="h-full bg-slate-900 flex flex-col">
       {/* 標題和進度 */}
-      <div className="p-4 border-b border-slate-800">
+      <div className="p-2 md:p-4 border-b border-slate-800">
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-xl font-semibold text-slate-100">聽打練習模式</h2>
-          <span className="text-slate-400">
+          <h2 className="text-base md:text-xl font-semibold text-slate-100">聽打練習模式</h2>
+          <span className="text-xs md:text-base text-slate-400">
             {currentSegmentIndex + 1} / {segments.length}
           </span>
         </div>
         <div className="w-full bg-slate-800 rounded-full h-2">
-          <div 
+          <div
             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${((currentSegmentIndex + 1) / segments.length) * 100}%` }}
           />
         </div>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-2 md:p-4">
         {/* 難度選擇器 */}
-        <div className="mb-6">
-          <h4 className="text-md font-medium text-slate-200 mb-3">難度設定：</h4>
-          <div className="flex gap-2">
+        <div className="mb-4 md:mb-6">
+          <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">難度設定：</h4>
+          <div className="flex gap-1 md:gap-2">
             {Object.values(BlanksDifficulty).map((level) => (
               <button
                 key={level}
                 onClick={() => handleDifficultyChange(level)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`px-2 py-1 md:px-4 md:py-2 text-sm md:text-base rounded-lg transition-colors ${
                   difficulty === level
                     ? 'bg-blue-600 text-white'
                     : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
@@ -576,98 +576,97 @@ export function BlanksFillPractice({
         </div>
 
         {/* 播放控制 */}
-        <div className="mb-6">
-          <h4 className="text-md font-medium text-slate-200 mb-3">播放控制：</h4>
-          
-          <div className="mb-3 ml-1">
-            <label className="flex items-center gap-2 cursor-pointer">
+        <div className="mb-4 md:mb-6">
+          <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">播放控制：</h4>
+
+          <div className="flex items-center gap-1 md:gap-2 flex-wrap">
+            {/* 循環播放 checkbox */}
+            <label className="flex items-center justify-center gap-1 cursor-pointer px-3 py-2 md:px-3 md:py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors flex-1 md:flex-none">
               <input
                 type="checkbox"
                 checked={isLooping}
                 onChange={(e) => setIsLooping(e.target.checked)}
-                className="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500 focus:ring-2"
+                className="w-3 h-3 md:w-4 md:h-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500 focus:ring-2"
               />
-              <Repeat className={`w-4 h-4 ${isLooping ? 'text-blue-400' : 'text-slate-400'}`} />
-              <span className={`text-sm ${isLooping ? 'text-blue-400' : 'text-slate-400'}`}>
-                循環播放當前句子
+              <Repeat className={`w-3 h-3 md:w-4 md:h-4 ${isLooping ? 'text-blue-400' : 'text-slate-400'}`} />
+              <span className={`hidden md:inline text-xs md:text-sm ${isLooping ? 'text-blue-400' : 'text-slate-400'}`}>
+                循環播放
               </span>
             </label>
-          </div>
-          
-          <div className="flex gap-2">
+
             <button
               onClick={isPlaying ? pauseSegment : (isLoopWaiting ? skipLoopWait : playCurrentSegment)}
               disabled={isStarting}
-              className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors ${
-                isStarting 
-                  ? 'bg-blue-500 cursor-not-allowed' 
+              className={`flex items-center justify-center gap-1 md:gap-2 px-4 py-2 md:px-4 md:py-2 text-xs md:text-base text-white rounded-lg transition-colors flex-1 md:flex-none ${
+                isStarting
+                  ? 'bg-blue-500 cursor-not-allowed'
                   : isLoopWaiting
                     ? 'bg-orange-600 hover:bg-orange-700'
                     : 'bg-blue-600 hover:bg-blue-700'
               }`}
             >
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              <span className="hidden lg:inline">
-                {isStarting 
-                  ? '啟動中...' 
+              <span className="hidden md:inline">
+                {isStarting
+                  ? '啟動中...'
                   : isLoopWaiting
                     ? `跳過等待 (${loopCountdown}s)`
-                    : isPlaying 
-                      ? '暫停' 
+                    : isPlaying
+                      ? '暫停'
                       : '播放'
                 }
               </span>
             </button>
-            
+
             <button
               onClick={repeatSegment}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg transition-colors"
+              className="flex items-center justify-center gap-1 md:gap-2 px-4 py-2 md:px-4 md:py-2 text-xs md:text-base bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg transition-colors flex-1 md:flex-none"
             >
               <RotateCcw className="w-4 h-4" />
-              <span className="hidden lg:inline">重複</span>
+              <span className="hidden md:inline">重複</span>
             </button>
 
             <button
               onClick={goToPreviousSegment}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg transition-colors"
+              className="flex items-center justify-center gap-1 md:gap-2 px-4 py-2 md:px-4 md:py-2 text-xs md:text-base bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg transition-colors flex-1 md:flex-none"
               disabled={currentSegmentIndex <= 0}
             >
               <SkipBack className="w-4 h-4" />
-              <span className="hidden lg:inline">上一句</span>
+              <span className="hidden md:inline">上一句</span>
             </button>
 
             <button
               onClick={goToNextSegment}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg transition-colors"
+              className="flex items-center justify-center gap-1 md:gap-2 px-4 py-2 md:px-4 md:py-2 text-xs md:text-base bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg transition-colors flex-1 md:flex-none"
               disabled={currentSegmentIndex >= segments.length - 1}
             >
               <SkipForward className="w-4 h-4" />
-              <span className="hidden lg:inline">下一句</span>
+              <span className="hidden md:inline">下一句</span>
             </button>
           </div>
         </div>
 
         {/* 聽打區域 */}
-        <div className="mb-6">
-          <h4 className="text-md font-medium text-slate-200 mb-3">聽打練習：</h4>
-          <div className="bg-slate-800 rounded-lg p-4">
+        <div className="mb-4 md:mb-6">
+          <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">聽打練習：</h4>
+          <div className="bg-slate-800 rounded-lg p-2 md:p-4">
             {difficulty === BlanksDifficulty.ADVANCED ? (
               /* 高級模式：自由聽打 */
               <div>
-                <p className="text-slate-400 mb-3 text-sm">
+                <p className="text-slate-400 mb-2 md:mb-3 text-xs md:text-sm">
                   請聽音頻後，在下方輸入您聽到的完整句子：
                 </p>
                 <textarea
                   value={practiceState.freeTypingInput}
                   onChange={(e) => setPracticeState(prev => ({ ...prev, freeTypingInput: e.target.value }))}
                   placeholder="請輸入您聽到的內容..."
-                  className="w-full h-32 p-4 bg-slate-700 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none"
+                  className="w-full h-32 p-2 md:p-4 text-sm md:text-base bg-slate-700 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none"
                   disabled={showFeedback}
                 />
               </div>
             ) : (
               /* 初級中級模式：填空練習 */
-              <div className="text-slate-100 text-lg leading-relaxed mb-4">
+              <div className="text-slate-100 text-sm md:text-lg leading-relaxed mb-4">
                 {currentBlanksSegment.text.split(/\s+/).map((word, index) => {
                   // 分離詞彙和標點符號
                   const leadingMatch = word.match(/^([^\w'-]+)/);
@@ -718,16 +717,16 @@ export function BlanksFillPractice({
             )}
             
             {!showFeedback && (
-              <div className="mt-4">
+              <div className="mt-2 md:mt-4">
                 <button
                   onClick={submitAnswer}
                   disabled={!canSubmit}
-                  className="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg transition-colors"
+                  className="px-4 py-1.5 md:px-6 md:py-2 text-sm md:text-base bg-green-600 hover:bg-green-700 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg transition-colors"
                 >
                   提交答案
                 </button>
                 {difficulty === BlanksDifficulty.ADVANCED && !hasFreeTypingInput && (
-                  <p className="text-slate-500 text-sm mt-2">
+                  <p className="text-slate-500 text-xs md:text-sm mt-2">
                     請輸入聽到的內容
                   </p>
                 )}
@@ -738,48 +737,48 @@ export function BlanksFillPractice({
 
         {/* 反饋區域 */}
         {showFeedback && (
-          <div className="mb-6">
-            <h4 className="text-md font-medium text-slate-200 mb-3">結果反饋：</h4>
-            <div className="bg-slate-800 rounded-lg p-4">
-              <div className="mb-3 flex items-center justify-between">
+          <div className="mb-4 md:mb-6">
+            <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">結果反饋：</h4>
+            <div className="bg-slate-800 rounded-lg p-2 md:p-4">
+              <div className="mb-2 md:mb-3 flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <span className="text-slate-400">準確度：</span>
-                  <span className={`ml-2 font-semibold text-lg ${
-                    practiceState.accuracy >= 80 ? 'text-green-400' : 
+                  <span className="text-slate-400 text-xs md:text-base">準確度：</span>
+                  <span className={`ml-1 md:ml-2 font-semibold text-base md:text-lg ${
+                    practiceState.accuracy >= 80 ? 'text-green-400' :
                     practiceState.accuracy >= 60 ? 'text-yellow-400' : 'text-red-400'
                   }`}>
                     {practiceState.accuracy}%
                   </span>
                 </div>
-                <div className="text-slate-500 text-sm">
+                <div className="text-slate-500 text-xs md:text-sm">
                   第 {practiceState.attemptCount} 次嘗試
                 </div>
               </div>
 
-              <div className="mb-4">
+              <div className="mb-2 md:mb-4">
                 {difficulty === BlanksDifficulty.ADVANCED ? (
                   /* 高級模式：顯示用戶輸入 vs 正確答案 */
                   <div>
-                    <div className="mb-3">
-                      <p className="text-slate-400 mb-2">您的輸入：</p>
-                      <p className="text-slate-300 bg-slate-700 p-3 rounded">{practiceState.freeTypingInput}</p>
+                    <div className="mb-2 md:mb-3">
+                      <p className="text-slate-400 mb-1 md:mb-2 text-xs md:text-sm">您的輸入：</p>
+                      <p className="text-slate-300 bg-slate-700 p-2 md:p-3 rounded text-xs md:text-base">{practiceState.freeTypingInput}</p>
                     </div>
                     <div>
-                      <p className="text-slate-400 mb-2">正確答案：</p>
-                      <p className="text-slate-100 bg-slate-700 p-3 rounded">{currentBlanksSegment.text}</p>
+                      <p className="text-slate-400 mb-1 md:mb-2 text-xs md:text-sm">正確答案：</p>
+                      <p className="text-slate-100 bg-slate-700 p-2 md:p-3 rounded text-xs md:text-base">{currentBlanksSegment.text}</p>
                     </div>
                   </div>
                 ) : (
                   /* 初級中級模式：顯示空格檢查 */
                   <div>
-                    <p className="text-slate-400 mb-2">答案檢查（正確數/總空格數）：</p>
-                    <div className="flex flex-wrap gap-2">
+                    <p className="text-slate-400 mb-1 md:mb-2 text-xs md:text-sm">答案檢查（正確數/總空格數）：</p>
+                    <div className="flex flex-wrap gap-1 md:gap-2">
                       {(practiceState.submittedBlanks || currentBlanksSegment.blanks).map((blank) => (
-                        <div key={blank.id} className="flex items-center gap-2">
-                          <span className="text-slate-300">{blank.word}:</span>
-                          <span className={`px-2 py-1 rounded text-sm ${
-                            blank.isCorrect 
-                              ? 'bg-green-600/20 text-green-400' 
+                        <div key={blank.id} className="flex items-center gap-1 md:gap-2">
+                          <span className="text-slate-300 text-xs md:text-sm">{blank.word}:</span>
+                          <span className={`px-1.5 py-0.5 md:px-2 md:py-1 rounded text-xs md:text-sm ${
+                            blank.isCorrect
+                              ? 'bg-green-600/20 text-green-400'
                               : 'bg-red-600/20 text-red-400'
                           }`}>
                             {blank.userInput || '(空白)'}
@@ -787,27 +786,27 @@ export function BlanksFillPractice({
                         </div>
                       ))}
                     </div>
-                    <p className="text-slate-500 text-xs mt-2">
+                    <p className="text-slate-500 text-[10px] md:text-xs mt-1 md:mt-2">
                       * 準確度計算：正確填寫的空格數 ÷ 總空格數 × 100%
                     </p>
                   </div>
                 )}
               </div>
 
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-1 md:gap-2 flex-wrap">
                 <button
                   onClick={retryCurrentSegment}
-                  className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                  className="px-2 py-1 md:px-4 md:py-2 text-xs md:text-base bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors flex items-center gap-1 md:gap-2"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-3 h-3 md:w-4 md:h-4" />
                   重新嘗試
                 </button>
-                
+
                 <button
                   onClick={listenAgain}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                  className="px-2 py-1 md:px-4 md:py-2 text-xs md:text-base bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-1 md:gap-2"
                 >
-                  <Play className="w-4 h-4" />
+                  <Play className="w-3 h-3 md:w-4 md:h-4" />
                   再聽一次
                 </button>
               </div>

@@ -82,11 +82,11 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
           onTimeUpdate={handleTimeUpdate}
           onPlayerReady={setPlayer}
         />
-        <div className="mt-4 flex items-center gap-4 flex-wrap">
+        <div className="mt-4 flex items-center gap-2 md:gap-4">
           {/* <span className="text-slate-400">當前時間: {Math.round(currentTime)}s</span> */}
-          <div className="flex gap-2">
+          <div className="flex gap-1 md:gap-2">
             <button
-              className={`px-4 py-2 rounded transition-colors ${
+              className={`px-2 py-1 md:px-4 md:py-2 text-sm md:text-base rounded transition-colors ${
                 !isPracticeMode
                   ? 'bg-blue-600 text-white'
                   : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
@@ -96,7 +96,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
               觀看模式
             </button>
             <button
-              className={`px-4 py-2 rounded transition-colors ${
+              className={`px-2 py-1 md:px-4 md:py-2 text-sm md:text-base rounded transition-colors ${
                 isPracticeMode
                   ? 'bg-blue-600 text-white'
                   : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
@@ -106,12 +106,12 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
               聽打練習
             </button>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-400">播放速度:</span>
+          <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
+            <span className="text-slate-400 text-xs md:text-base">播放速度:</span>
             <select
               value={playbackRate}
               onChange={(e) => handlePlaybackRateChange(Number(e.target.value))}
-              className="px-3 py-2 rounded bg-slate-700 text-slate-100 border border-slate-600 hover:bg-slate-600 transition-colors cursor-pointer"
+              className="px-2 py-1 md:px-3 md:py-2 text-sm md:text-base rounded bg-slate-700 text-slate-100 border border-slate-600 hover:bg-slate-600 transition-colors cursor-pointer"
             >
               <option value={0.5}>0.5x</option>
               <option value={0.75}>0.75x</option>
@@ -141,7 +141,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
           </div>
         )}
       </div>
-      <div className="w-full md:w-1/2">
+      <div className="w-full md:w-1/2 h-[60vh] md:h-full">
         {isPracticeMode ? (
           <BlanksFillPractice
             segments={segments}
