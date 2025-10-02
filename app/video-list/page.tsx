@@ -81,7 +81,7 @@ export default function VideoListPage() {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
         {videoList.videos.map((video) => (
           <VideoCard key={video.videoId} video={video} />
         ))}
@@ -132,29 +132,30 @@ function VideoCard({ video }: { video: VideoListEntry }) {
         </div>
       </CardHeader>
       
-      <CardContent className="p-4">
-        <CardTitle className="text-slate-100 text-sm font-medium mb-2 line-clamp-2">
+      <CardContent className="p-2 md:p-4">
+        <CardTitle className="text-slate-100 text-xs md:text-sm font-medium mb-1 md:mb-2 line-clamp-2">
           {video.title}
         </CardTitle>
-        
-        <CardDescription className="text-slate-400 text-xs mb-3">
+
+        <CardDescription className="text-slate-400 text-[10px] md:text-xs mb-2 md:mb-3">
           <div className="flex items-center gap-1 mb-1">
-            <User className="h-3 w-3" />
-            <span>{video.uploader || '未知'}</span>
+            <User className="h-2.5 w-2.5 md:h-3 md:w-3" />
+            <span className="truncate">{video.uploader || '未知'}</span>
           </div>
-          
+
           {video.view_count && (
             <div className="flex items-center gap-1">
-              <Eye className="h-3 w-3" />
+              <Eye className="h-2.5 w-2.5 md:h-3 md:w-3" />
               <span>{formatViewCount(video.view_count)}</span>
             </div>
           )}
         </CardDescription>
 
         <Link href={`/vp/${video.videoId}`}>
-          <Button className="w-full" size="sm">
-            <Play className="h-4 w-4 mr-2" />
-            開始練習
+          <Button className="w-full text-xs md:text-sm px-2 md:px-4" size="sm">
+            <Play className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+            <span className="hidden sm:inline">開始練習</span>
+            <span className="sm:hidden">練習</span>
           </Button>
         </Link>
       </CardContent>

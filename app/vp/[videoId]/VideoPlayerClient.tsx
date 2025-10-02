@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   YouTubePlayer,
   type YouTubePlayerInterface,
@@ -9,9 +10,11 @@ import { SrtTranscriptViewer } from "@/components/SrtTranscriptViewer";
 import { BlanksFillPractice } from "@/components/BlanksFillPractice";
 import { SentenceDisplay } from "@/components/SentenceDisplay";
 import { parseSRT, type Segment } from "@/lib/srt-utils";
+import { ArrowLeft } from "lucide-react";
 
 // 4voKeMm3u1Y
 export default function VideoPlayerClient({ videoId }: { videoId: string }) {
+  const router = useRouter();
   const [currentTime, setCurrentTime] = useState(0);
   const [srtContent, setSrtContent] = useState("");
   const [player, setPlayer] = useState<YouTubePlayerInterface | null>(null);
@@ -75,7 +78,18 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
 
   return (
     <div className="bg-slate-900 min-h-screen">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 p-10 md:h-screen">
+      {/* 返回按鈕 */}
+      <div className="max-w-7xl mx-auto px-4 md:px-10 pt-4">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 text-sm md:text-base text-slate-300 hover:text-slate-100 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+          <span>返回</span>
+        </button>
+      </div>
+
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 px-4 md:px-10 pb-10 pt-4 md:h-screen">
       <div className="w-full md:w-1/2">
         <YouTubePlayer
           videoId={videoId}
