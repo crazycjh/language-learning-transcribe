@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Loader2 } from "lucide-react";
 import { parseSRT, type Segment } from "@/lib/srt-utils";
 
 interface SrtTranscriptViewerProps {
@@ -67,6 +67,18 @@ export function SrtTranscriptViewer({
     }
   }, [activeSegmentId]);
   
+  // 載入狀態
+  if (!srtContent || segments.length === 0) {
+    return (
+      <div className="h-full bg-slate-900 flex items-center justify-center">
+        <div className="text-slate-400 text-center flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin" />
+          <h3 className="text-lg">載入逐字稿中...</h3>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="transcript-container h-full bg-slate-900">
       <ScrollArea ref={scrollAreaRef} className="h-full pt-4 px-4 space-y-4 border border-slate-800 bg-slate-950/50 rounded-md p-4">

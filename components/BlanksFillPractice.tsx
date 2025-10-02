@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Play, Pause, RotateCcw, Repeat, SkipBack, SkipForward } from "lucide-react";
+import { Play, Pause, RotateCcw, Repeat, SkipBack, SkipForward, Loader2 } from "lucide-react";
 import { 
   type Segment, 
   type BlanksSegment, 
@@ -504,6 +504,18 @@ export function BlanksFillPractice({
   const listenAgain = () => {
     playCurrentSegment();
   };
+
+  // 區分載入中和真正完成
+  if (blanksSegments.length === 0) {
+    return (
+      <div className="h-full bg-slate-900 flex items-center justify-center">
+        <div className="text-slate-400 text-center flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin" />
+          <h3 className="text-lg">載入練習內容中...</h3>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentBlanksSegment) {
     return (
