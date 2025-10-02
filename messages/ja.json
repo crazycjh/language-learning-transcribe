@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "title": "YouTube動画学習プラットフォーム",
+    "description": "動画の文字起こし、インタラクティブな字幕、言語学習機能"
+  },
+  "common": {
+    "language": "言語",
+    "changeLanguage": "言語を変更"
+  }
+}

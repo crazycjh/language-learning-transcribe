@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "title": "YouTube 影片學習平台",
+    "description": "影片轉錄、互動字幕與語言學習功能"
+  },
+  "common": {
+    "language": "語言",
+    "changeLanguage": "切換語言"
+  }
+}

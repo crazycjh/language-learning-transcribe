@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "title": "YouTube Video Learning Platform",
+    "description": "Video transcription, interactive subtitles and language learning features"
+  },
+  "common": {
+    "language": "Language",
+    "changeLanguage": "Change Language"
+  }
+}
