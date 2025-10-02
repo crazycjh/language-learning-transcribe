@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Play, Eye, User } from 'lucide-react';
+import { Loader2, Play, Eye, User, Headphones } from 'lucide-react';
 import { VideoList, VideoListEntry } from '@/lib/types';
 import { getVideoList, formatDuration, formatViewCount } from '@/lib/video-service';
 import Link from 'next/link';
@@ -91,20 +91,42 @@ export default function VideoListPage() {
 }
 
 function VideoCard({ video }: { video: VideoListEntry }) {
-  // 使用 Next.js API route 代理圖片
-  const thumbnailUrl = `/api/thumbnail/${video.videoId}`;
+  const [imageError, setImageError] = useState(false);
 
+  // 從 thumbnail URL 提取副檔名
+  const getThumbnailExt = () => {
+    if (!video.thumbnail) return null;
+    const match = video.thumbnail.match(/\.(\w+)$/);
+    console.log('檔案類型 ： ',match ? match[1] : null)
+    return match ? match[1] : null;
+  };
+
+  const ext = getThumbnailExt();
+  // 使用 Next.js API route 代理圖片，如果有副檔名就傳遞
+  const thumbnailUrl = ext
+    ? `/api/thumbnail/${video.videoId}?ext=${ext}`
+    : `/api/thumbnail/${video.videoId}`;
+  console.log('圖片網址：', thumbnailUrl)
   return (
     <Card className="bg-slate-800 border-slate-700 hover:bg-slate-750 transition-colors">
       <CardHeader className="p-0">
+        {thumbnailUrl}
         <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">
-          <Image
-            src={thumbnailUrl}
-            alt={video.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-          />
+          {imageError ? (
+            // Fallback: 顯示漸層背景 + Headphones icon
+            <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
+              <Headphones className="w-16 h-16 text-slate-400" strokeWidth={1.5} />
+            </div>
+          ) : (
+            <Image
+              src={thumbnailUrl}
+              alt={video.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              onError={() => setImageError(true)}
+            />
+          )}
           <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
             {formatDuration(video.duration)}
           </div>

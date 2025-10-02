@@ -11,6 +11,8 @@ export interface VideoListEntry {
   uploader?: string;
   /** 觀看次數 */
   view_count?: number;
+  /** 縮圖 URL */
+  thumbnail?: string;
 }
 
 /** 完整的 VideoList 結構 */
