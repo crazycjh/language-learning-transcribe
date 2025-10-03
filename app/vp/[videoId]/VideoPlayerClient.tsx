@@ -89,7 +89,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
         </button>
       </div>
 
-      <div className="flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-4 px-4 md:px-10 pb-4 md:pb-10 overflow-hidden">
+      <div className="flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-4 px-4 md:px-10 pb-4 md:pb-10 overflow-y-auto scrollbar-hide">
         <div className="w-full md:w-1/2">
           <YouTubePlayer
             videoId={videoId}
