@@ -1,37 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Play, Eye, User, Headphones } from 'lucide-react';
-import { VideoList, VideoListEntry } from '@/lib/types';
-import { getVideoList, formatDuration, formatViewCount } from '@/lib/video-service';
+import { VideoListEntry } from '@/lib/types';
+import { getVideoList, formatDuration, formatViewCount, getSrtContent } from '@/lib/video-service';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function VideoListPage() {
-  const [videoList, setVideoList] = useState<VideoList | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: videoList, isLoading, error, refetch } = useQuery({
+    queryKey: ['videoList'],
+    queryFn: getVideoList,
+  });
 
-  useEffect(() => {
-    async function fetchVideos() {
-      try {
-        setLoading(true);
-        const data = await getVideoList();
-        setVideoList(data);
-      } catch (err) {
-        console.error('Failed to fetch videos:', err);
-        setError('無法載入影片列表');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchVideos();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-6 text-slate-100">影片列表</h1>
@@ -48,9 +33,9 @@ export default function VideoListPage() {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-6 text-slate-100">影片列表</h1>
         <div className="text-center text-red-400 p-8">
-          <p>{error}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
+          <p>無法載入影片列表</p>
+          <Button
+            onClick={() => refetch()}
             className="mt-4"
             variant="outline"
           >
@@ -92,6 +77,15 @@ export default function VideoListPage() {
 
 function VideoCard({ video }: { video: VideoListEntry }) {
   const [imageError, setImageError] = useState(false);
+  const queryClient = useQueryClient();
+
+  // 滑鼠移到卡片上時預載入 SRT
+  const handleMouseEnter = () => {
+    queryClient.prefetchQuery({
+      queryKey: ['srt', video.videoId],
+      queryFn: () => getSrtContent(video.videoId),
+    });
+  };
 
   // 從 thumbnail URL 提取副檔名
   const getThumbnailExt = () => {
@@ -108,7 +102,10 @@ function VideoCard({ video }: { video: VideoListEntry }) {
     : `/api/thumbnail/${video.videoId}`;
   console.log('圖片網址：', thumbnailUrl)
   return (
-    <Card className="bg-slate-800 border-slate-700 hover:bg-slate-750 transition-colors">
+    <Card
+      className="bg-slate-800 border-slate-700 hover:bg-slate-750 transition-colors"
+      onMouseEnter={handleMouseEnter}
+    >
       <CardHeader className="p-0">
         <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">
           {imageError ? (

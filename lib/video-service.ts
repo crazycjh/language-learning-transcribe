@@ -13,6 +13,19 @@ export async function getVideoList(): Promise<VideoList> {
   }
 }
 
+export async function getSrtContent(videoId: string): Promise<string> {
+  try {
+    const response = await fetch(`/api/srt/${videoId}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch SRT: ${response.status}`);
+    }
+    return await response.text();
+  } catch (error) {
+    console.error('Error fetching SRT:', error);
+    throw error;
+  }
+}
+
 export function formatDuration(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;

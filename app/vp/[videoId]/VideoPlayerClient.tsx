@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
   YouTubePlayer,
   type YouTubePlayerInterface,
@@ -9,41 +10,31 @@ import {
 import { SrtTranscriptViewer } from "@/components/SrtTranscriptViewer";
 import { BlanksFillPractice } from "@/components/BlanksFillPractice";
 import { SentenceDisplay } from "@/components/SentenceDisplay";
-import { parseSRT, type Segment } from "@/lib/srt-utils";
-import { ArrowLeft } from "lucide-react";
+import { parseSRT } from "@/lib/srt-utils";
+import { getSrtContent } from "@/lib/video-service";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 // 4voKeMm3u1Y
 export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState(0);
-  const [srtContent, setSrtContent] = useState("");
   const [player, setPlayer] = useState<YouTubePlayerInterface | null>(null);
   const [isPracticeMode, setIsPracticeMode] = useState(false);
-  const [segments, setSegments] = useState<Segment[]>([]);
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
 
-  useEffect(() => {
-    async function loadSRT() {
-      try {
-        const response = await fetch(`/api/srt/${videoId}`);
-        if (!response.ok) {
-          throw new Error("無法取得 SRT");
-        }
-        const content = await response.text();
-        setSrtContent(content);
+  // 使用 TanStack Query 抓取並快取 SRT 資料
+  const { data: srtContent = "", isLoading } = useQuery({
+    queryKey: ["srt", videoId],
+    queryFn: () => getSrtContent(videoId),
+  });
 
-        // 解析 SRT 並設置 segments
-        const parsedSegments = parseSRT(content);
-        setSegments(parsedSegments);
-      } catch (error) {
-        console.error("載入逐字稿失敗:", error);
-      }
-    }
-
-    loadSRT();
-  }, [videoId]);
+  // 從 srtContent 計算 segments
+  const segments = useMemo(() => {
+    if (!srtContent) return [];
+    return parseSRT(srtContent);
+  }, [srtContent]);
 
   const handleTimeUpdate = (time: number) => {
     setCurrentTime(time);
@@ -75,6 +66,15 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
       player.setPlaybackRate(rate);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-slate-900 h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-slate-400 mr-2" />
+        {/* <span className="text-slate-400 text-lg">載入字幕中...</span> */}
+      </div>
+    );
+  }
 
   return (
     <div className="bg-slate-900 h-screen flex flex-col">
