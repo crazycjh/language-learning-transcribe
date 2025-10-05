@@ -705,7 +705,11 @@ export function BlanksFillPractice({
                                   ? 'border-green-500 text-green-400'
                                   : 'border-red-500 text-red-400'
                             }`}
-                            style={{ width: `${Math.max(blank.length * 0.8, 3)}rem` }}
+                            style={{
+                              width: `${blank.length + 2}ch`,
+                              minWidth: '3.5rem',
+                              maxWidth: '15rem'
+                            }}
                             placeholder={
                               difficulty === BlanksDifficulty.BEGINNER ? blank.hint :
                               difficulty === BlanksDifficulty.INTERMEDIATE ? '_'.repeat(blank.length) :
