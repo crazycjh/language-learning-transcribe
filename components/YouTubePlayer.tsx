@@ -14,6 +14,7 @@ export interface YouTubePlayerInterface {
 interface YouTubePlayerProps {
   videoId: string;
   onTimeUpdate?: (time: number) => void;
+  onStateChange?: (state: number) => void;
   width?: number;
   height?: number;
   onPlayerReady?: (player: YouTubePlayerInterface) => void;
@@ -23,6 +24,7 @@ interface YouTubePlayerProps {
 export function YouTubePlayer({
   videoId,
   onTimeUpdate,
+  onStateChange,
   width,
   height,
   onPlayerReady,
@@ -142,13 +144,19 @@ export function YouTubePlayer({
 
     try {
       const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-      if (data.event === 'infoDelivery' && data.info && data.info.currentTime) {
-        currentTimeRef.current = data.info.currentTime;
+      if (data.event === 'infoDelivery' && data.info) {
+        if (data.info.currentTime) {
+          currentTimeRef.current = data.info.currentTime;
+        }
+        // 監聽播放狀態變化 (1=播放, 2=暫停)
+        if (data.info.playerState !== undefined && onStateChange) {
+          onStateChange(data.info.playerState);
+        }
       }
     } catch {
       // 忽略解析錯誤
     }
-  }, []);
+  }, [onStateChange]);
 
   // 主要的效果：創建和管理iframe
   useEffect(() => {

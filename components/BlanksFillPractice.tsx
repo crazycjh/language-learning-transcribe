@@ -22,6 +22,7 @@ interface BlanksFillPracticeProps {
   showFeedback: boolean;
   onSegmentIndexChange: (index: number) => void;
   onFeedbackChange: (show: boolean) => void;
+  externalPlayState?: boolean | null;
 }
 
 interface PracticeState {
@@ -60,7 +61,8 @@ export function BlanksFillPractice({
   currentSegmentIndex,
   showFeedback,
   onSegmentIndexChange,
-  onFeedbackChange
+  onFeedbackChange,
+  externalPlayState
 }: BlanksFillPracticeProps) {
   const [difficulty, setDifficulty] = useState<BlanksDifficulty>(BlanksDifficulty.INTERMEDIATE);
   const [blanksSegments, setBlanksSegments] = useState<BlanksSegment[]>([]);
@@ -195,6 +197,13 @@ export function BlanksFillPractice({
     });
     onFeedbackChange(false);
   }, [currentSegmentIndex, onFeedbackChange]);
+
+  // 同步外部播放狀態（當用戶直接點擊 YouTube iframe 時）
+  useEffect(() => {
+    if (externalPlayState !== null && externalPlayState !== undefined) {
+      setIsPlaying(externalPlayState);
+    }
+  }, [externalPlayState]);
 
   // 播放控制相關函數（類似原來的 DictationPractice）
   const clearLoopTimeout = useCallback(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -23,6 +23,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const [externalPlayState, setExternalPlayState] = useState<boolean | null>(null);
 
   // 使用 TanStack Query 抓取並快取 SRT 資料
   const { data: srtContent = "", isLoading } = useQuery({
@@ -36,36 +37,52 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     return parseSRT(srtContent);
   }, [srtContent]);
 
-  const handleTimeUpdate = (time: number) => {
+  const handleTimeUpdate = useCallback((time: number) => {
     setCurrentTime(time);
-  };
+  }, []);
 
-  const handleSegmentClick = (time: number) => {
+  const handlePlayerStateChange = useCallback((state: number) => {
+    // YouTube 播放狀態: 1=播放中, 2=暫停
+    if (state === 1) {
+      setExternalPlayState(true);
+    } else if (state === 2) {
+      setExternalPlayState(false);
+    }
+  }, []);
+
+  const handleSegmentClick = useCallback((time: number) => {
     if (player) {
       player.seekTo(time);
     }
-  };
+  }, [player]);
 
-  const handlePreviousSegment = () => {
-    if (currentSegmentIndex > 0) {
-      setCurrentSegmentIndex(currentSegmentIndex - 1);
-      setShowFeedback(false);
-    }
-  };
+  const handlePreviousSegment = useCallback(() => {
+    setCurrentSegmentIndex(prev => {
+      if (prev > 0) {
+        setShowFeedback(false);
+        return prev - 1;
+      }
+      return prev;
+    });
+  }, []);
 
-  const handleNextSegment = () => {
-    if (currentSegmentIndex < segments.length - 1) {
-      setCurrentSegmentIndex(currentSegmentIndex + 1);
-      setShowFeedback(false);
-    }
-  };
+  const handleNextSegment = useCallback(() => {
+    setCurrentSegmentIndex(prev => {
+      const maxIndex = segments.length - 1;
+      if (prev < maxIndex) {
+        setShowFeedback(false);
+        return prev + 1;
+      }
+      return prev;
+    });
+  }, [segments.length]);
 
-  const handlePlaybackRateChange = (rate: number) => {
+  const handlePlaybackRateChange = useCallback((rate: number) => {
     setPlaybackRate(rate);
     if (player) {
       player.setPlaybackRate(rate);
     }
-  };
+  }, [player]);
 
   if (isLoading) {
     return (
@@ -94,6 +111,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
           <YouTubePlayer
             videoId={videoId}
             onTimeUpdate={handleTimeUpdate}
+            onStateChange={handlePlayerStateChange}
             onPlayerReady={setPlayer}
           />
           <div className="mt-4 flex items-center gap-2 md:gap-4">
@@ -169,6 +187,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
               showFeedback={showFeedback}
               onSegmentIndexChange={setCurrentSegmentIndex}
               onFeedbackChange={setShowFeedback}
+              externalPlayState={externalPlayState}
             />
           ) : (
             <SrtTranscriptViewer
