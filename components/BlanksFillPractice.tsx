@@ -201,18 +201,25 @@ export function BlanksFillPractice({
   // 同步外部播放狀態（當用戶直接點擊 YouTube iframe 時）
   useEffect(() => {
     if (externalPlayState !== null && externalPlayState !== undefined) {
+      console.log(`[BlanksFill] 收到 externalPlayState = ${externalPlayState}`);
       const currentSegment = segments[currentSegmentIndex];
 
       // 如果用戶點擊播放
       if (externalPlayState === true && currentSegment && player) {
+        console.log(`[BlanksFill] 檢查時間範圍: currentTime=${currentTime}, startTime=${currentSegment.startTime}, endTime=${currentSegment.endTime}`);
+
         // 檢查當前時間是否在句子範圍內
         if (currentTime < currentSegment.startTime || currentTime >= currentSegment.endTime) {
+          console.log(`[BlanksFill] 時間超出範圍，執行 seekTo(${currentSegment.startTime}, false)`);
           // 如果不在範圍內，先跳轉到句子開頭
           player.seekTo(currentSegment.startTime, false);
           setPausedTime(null);
+        } else {
+          console.log('[BlanksFill] 時間在範圍內，不需要 seekTo');
         }
       }
 
+      console.log(`[BlanksFill] 設置 isPlaying = ${externalPlayState}`);
       setIsPlaying(externalPlayState);
     }
   }, [externalPlayState, segments, currentSegmentIndex, player, currentTime]);

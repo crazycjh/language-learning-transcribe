@@ -73,15 +73,30 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   }, []);
 
   const handlePlayerStateChange = useCallback((state: number) => {
-    // YouTube 播放狀態: 1=播放中, 2=暫停
+    // YouTube 播放狀態: -1=未開始, 0=結束, 1=播放中, 2=暫停, 3=緩衝中, 5=已排隊
+    const stateNames: Record<number, string> = {
+      '-1': '未開始',
+      0: '結束',
+      1: '播放中',
+      2: '暫停',
+      3: '緩衝中',
+      5: '已排隊'
+    };
+
+    console.log(`[Wake Lock] YouTube state: ${state} (${stateNames[state] || '未知'})`);
+
     if (state === 1) {
+      console.log('[Wake Lock] → 設置 externalPlayState = true');
       setExternalPlayState(true);
-      console.log('requestWakeLock')
+      console.log('[Wake Lock] → 請求 Wake Lock');
       requestWakeLock(); // 播放時啟用 wake lock
     } else if (state === 2) {
+      console.log('[Wake Lock] → 設置 externalPlayState = false');
       setExternalPlayState(false);
-      console.log('releaseWakeLock')
+      console.log('[Wake Lock] → 釋放 Wake Lock');
       releaseWakeLock(); // 暫停時釋放 wake lock
+    } else {
+      console.log(`[Wake Lock] → 忽略狀態 ${state}`);
     }
   }, [requestWakeLock, releaseWakeLock]);
 
@@ -195,13 +210,21 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     alert(message);
   }, []);
 
+  // 使用 ref 追蹤最新的播放狀態，避免 useEffect 重新運行
+  const externalPlayStateRef = useRef(externalPlayState);
+  useEffect(() => {
+    externalPlayStateRef.current = externalPlayState;
+  }, [externalPlayState]);
+
   // 處理頁面可見性變化和組件卸載
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
+        console.log('[Wake Lock] 頁面隱藏，釋放 Wake Lock');
         // 頁面隱藏時釋放 wake lock
         releaseWakeLock();
-      } else if (externalPlayState === true) {
+      } else if (externalPlayStateRef.current === true) {
+        console.log('[Wake Lock] 頁面重新可見且正在播放，請求 Wake Lock');
         // 頁面重新可見且正在播放時，重新請求 wake lock
         requestWakeLock();
       }
@@ -211,10 +234,11 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
 
     // 組件卸載時釋放 wake lock
     return () => {
+      console.log('[Wake Lock] 組件卸載，釋放 Wake Lock');
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       releaseWakeLock();
     };
-  }, [externalPlayState, requestWakeLock, releaseWakeLock]);
+  }, []); // 👈 空依賴項，只在 mount/unmount 時運行
 
   if (isLoading) {
     return (
