@@ -5,7 +5,7 @@ import { useEffect, useRef, useCallback } from 'react';
 export interface YouTubePlayerInterface {
   destroy: () => void;
   getCurrentTime: () => number;
-  seekTo: (seconds: number) => void;
+  seekTo: (seconds: number, shouldAutoPlay?: boolean) => void;
   playVideo: () => void;
   pauseVideo: () => void;
   setPlaybackRate: (rate: number) => void;
@@ -58,8 +58,7 @@ export function YouTubePlayer({
         iframeRef.current = null;
       },
       getCurrentTime: () => currentTimeRef.current,
-      seekTo: (seconds: number) => {
-        currentTimeRef.current = seconds;
+      seekTo: (seconds: number, shouldAutoPlay?: boolean) => {
         if (iframeRef.current?.contentWindow) {
           try {
             // 跳轉到指定時間
@@ -71,16 +70,35 @@ export function YouTubePlayer({
               }),
               '*'
             );
-            // 如果 autoPlay 為 true，則自動播放
-            if (autoPlay) {
-              iframeRef.current.contentWindow.postMessage(
-                JSON.stringify({
-                  event: 'command',
-                  func: 'playVideo',
-                  args: []
-                }),
-                '*'
-              );
+
+            // 決定是否自動播放：優先使用參數，否則使用 autoPlay prop
+            const shouldPlay = shouldAutoPlay !== undefined ? shouldAutoPlay : autoPlay;
+
+            // 如果需要自動播放，使用 polling 確認 seekTo 完成後再播放
+            if (shouldPlay) {
+              let pollCount = 0;
+              const maxPolls = 20; // 最多輪詢 20 次 (2 秒)
+              const pollInterval = setInterval(() => {
+                pollCount++;
+
+                // 檢查當前時間是否接近目標時間 (容差 0.5 秒)
+                const timeDiff = Math.abs(currentTimeRef.current - seconds);
+                if (timeDiff < 0.5 || pollCount >= maxPolls) {
+                  clearInterval(pollInterval);
+
+                  // 發送播放命令
+                  if (iframeRef.current?.contentWindow) {
+                    iframeRef.current.contentWindow.postMessage(
+                      JSON.stringify({
+                        event: 'command',
+                        func: 'playVideo',
+                        args: []
+                      }),
+                      '*'
+                    );
+                  }
+                }
+              }, 100); // 每 100ms 檢查一次
             }
           } catch {
             console.log('無法控制iframe播放器時間');

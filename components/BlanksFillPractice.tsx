@@ -201,9 +201,21 @@ export function BlanksFillPractice({
   // 同步外部播放狀態（當用戶直接點擊 YouTube iframe 時）
   useEffect(() => {
     if (externalPlayState !== null && externalPlayState !== undefined) {
+      const currentSegment = segments[currentSegmentIndex];
+
+      // 如果用戶點擊播放
+      if (externalPlayState === true && currentSegment && player) {
+        // 檢查當前時間是否在句子範圍內
+        if (currentTime < currentSegment.startTime || currentTime >= currentSegment.endTime) {
+          // 如果不在範圍內，先跳轉到句子開頭
+          player.seekTo(currentSegment.startTime, false);
+          setPausedTime(null);
+        }
+      }
+
       setIsPlaying(externalPlayState);
     }
-  }, [externalPlayState]);
+  }, [externalPlayState, segments, currentSegmentIndex, player, currentTime]);
 
   // 播放控制相關函數（類似原來的 DictationPractice）
   const clearLoopTimeout = useCallback(() => {
@@ -227,7 +239,7 @@ export function BlanksFillPractice({
 
       // 如果有暫停時間，從暫停處繼續；否則從片段開頭開始
       const startTime = pausedTime !== null ? pausedTime : currentSegment.startTime;
-      player.seekTo(startTime);
+      player.seekTo(startTime, false); // 明確傳入 false，禁用 seekTo 內部的自動播放
 
       // 只在開始播放後才清除暫停時間
       setTimeout(() => {
@@ -261,7 +273,7 @@ export function BlanksFillPractice({
       }
 
       // 總是從片段開頭開始播放
-      player.seekTo(currentSegment.startTime);
+      player.seekTo(currentSegment.startTime, false); // 明確傳入 false，禁用 seekTo 內部的自動播放
 
       setTimeout(() => {
         if (player) {
