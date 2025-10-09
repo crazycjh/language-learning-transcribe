@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -25,6 +25,9 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   const [playbackRate, setPlaybackRate] = useState(1);
   const [externalPlayState, setExternalPlayState] = useState<boolean | null>(null);
 
+  // Wake Lock for keeping screen awake during playback
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+
   // 使用 TanStack Query 抓取並快取 SRT 資料
   const { data: srtContent = "", isLoading } = useQuery({
     queryKey: ["srt", videoId],
@@ -37,6 +40,30 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     return parseSRT(srtContent);
   }, [srtContent]);
 
+  // Wake Lock 管理函數
+  const requestWakeLock = useCallback(async () => {
+    try {
+      if ("wakeLock" in navigator && !wakeLockRef.current) {
+        wakeLockRef.current = await navigator.wakeLock.request("screen");
+        console.log("Wake Lock activated");
+      }
+    } catch (err) {
+      console.error("Wake Lock request failed:", err);
+    }
+  }, []);
+
+  const releaseWakeLock = useCallback(async () => {
+    try {
+      if (wakeLockRef.current) {
+        await wakeLockRef.current.release();
+        wakeLockRef.current = null;
+        console.log("Wake Lock released");
+      }
+    } catch (err) {
+      console.error("Wake Lock release failed:", err);
+    }
+  }, []);
+
   const handleTimeUpdate = useCallback((time: number) => {
     setCurrentTime(time);
   }, []);
@@ -45,10 +72,14 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     // YouTube 播放狀態: 1=播放中, 2=暫停
     if (state === 1) {
       setExternalPlayState(true);
+      console.log('requestWakeLock')
+      requestWakeLock(); // 播放時啟用 wake lock
     } else if (state === 2) {
       setExternalPlayState(false);
+      console.log('releaseWakeLock')
+      releaseWakeLock(); // 暫停時釋放 wake lock
     }
-  }, []);
+  }, [requestWakeLock, releaseWakeLock]);
 
   const handleSegmentClick = useCallback((time: number) => {
     if (player) {
@@ -83,6 +114,57 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
       player.setPlaybackRate(rate);
     }
   }, [player]);
+
+  // 檢測並記錄 Wake Lock 支援狀況
+  useEffect(() => {
+    const supported = 'wakeLock' in navigator;
+    const userAgent = navigator.userAgent;
+
+    // 解析瀏覽器資訊
+    let browserInfo = '未知瀏覽器';
+    if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+      const version = userAgent.match(/Version\/([\d.]+)/)?.[1] || '?';
+      browserInfo = `Safari ${version}`;
+    } else if (userAgent.includes('Chrome')) {
+      const version = userAgent.match(/Chrome\/([\d.]+)/)?.[1] || '?';
+      if (userAgent.includes('Edg')) {
+        browserInfo = `Edge ${version}`;
+      } else {
+        browserInfo = `Chrome ${version}`;
+      }
+    } else if (userAgent.includes('Firefox')) {
+      const version = userAgent.match(/Firefox\/([\d.]+)/)?.[1] || '?';
+      browserInfo = `Firefox ${version}`;
+    }
+
+    console.log('=== Wake Lock 支援檢測 ===');
+    console.log('瀏覽器:', browserInfo);
+    console.log('Wake Lock 支援:', supported ? '✅ 是' : '❌ 否');
+    if (!supported) {
+      console.log('建議: 使用 Chrome/Edge 84+ 或 Safari PWA 模式');
+    }
+  }, []);
+
+  // 處理頁面可見性變化和組件卸載
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // 頁面隱藏時釋放 wake lock
+        releaseWakeLock();
+      } else if (externalPlayState === true) {
+        // 頁面重新可見且正在播放時，重新請求 wake lock
+        requestWakeLock();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // 組件卸載時釋放 wake lock
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      releaseWakeLock();
+    };
+  }, [externalPlayState, requestWakeLock, releaseWakeLock]);
 
   if (isLoading) {
     return (

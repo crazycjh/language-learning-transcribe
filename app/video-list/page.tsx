@@ -91,7 +91,6 @@ function VideoCard({ video }: { video: VideoListEntry }) {
   const getThumbnailExt = () => {
     if (!video.thumbnail) return null;
     const match = video.thumbnail.match(/\.(\w+)$/);
-    console.log('檔案類型 ： ',match ? match[1] : null)
     return match ? match[1] : null;
   };
 
@@ -100,7 +99,6 @@ function VideoCard({ video }: { video: VideoListEntry }) {
   const thumbnailUrl = ext
     ? `/api/thumbnail/${video.videoId}?ext=${ext}`
     : `/api/thumbnail/${video.videoId}`;
-  console.log('圖片網址：', thumbnailUrl)
   return (
     <Card
       className="bg-slate-800 border-slate-700 hover:bg-slate-750 transition-colors"
