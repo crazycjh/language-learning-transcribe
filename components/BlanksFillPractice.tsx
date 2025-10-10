@@ -105,6 +105,7 @@ export function BlanksFillPractice({
   const [isLoopWaiting, setIsLoopWaiting] = useState(false);
   const [loopCountdown, setLoopCountdown] = useState(0);
   const loopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTimeRef = useRef(currentTime);
 
   const currentBlanksSegment = blanksSegments[currentSegmentIndex];
 
@@ -206,10 +207,11 @@ export function BlanksFillPractice({
 
       // 如果用戶點擊播放
       if (externalPlayState === true && currentSegment && player) {
-        console.log(`[BlanksFill] 檢查時間範圍: currentTime=${currentTime}, startTime=${currentSegment.startTime}, endTime=${currentSegment.endTime}`);
+        const time = player.getCurrentTime();
+        console.log(`[BlanksFill] 檢查時間範圍: currentTime=${time}, startTime=${currentSegment.startTime}, endTime=${currentSegment.endTime}`);
 
         // 檢查當前時間是否在句子範圍內
-        if (currentTime < currentSegment.startTime || currentTime >= currentSegment.endTime) {
+        if (time < currentSegment.startTime || time >= currentSegment.endTime) {
           console.log(`[BlanksFill] 時間超出範圍，執行 seekTo(${currentSegment.startTime}, false)`);
           // 如果不在範圍內，先跳轉到句子開頭
           player.seekTo(currentSegment.startTime, false);
@@ -222,7 +224,7 @@ export function BlanksFillPractice({
       console.log(`[BlanksFill] 設置 isPlaying = ${externalPlayState}`);
       setIsPlaying(externalPlayState);
     }
-  }, [externalPlayState, segments, currentSegmentIndex, player, currentTime]);
+  }, [externalPlayState, segments, currentSegmentIndex, player]);
 
   // 播放控制相關函數（類似原來的 DictationPractice）
   const clearLoopTimeout = useCallback(() => {
@@ -333,6 +335,15 @@ export function BlanksFillPractice({
 
   // 監聽時間變化，當拖曳時間軸時自動跳轉到對應的句子
   useEffect(() => {
+    // 計算時間跳躍幅度，只有大幅跳躍（>1秒）才認為是拖曳
+    const timeDiff = Math.abs(currentTime - lastTimeRef.current);
+    const isLargeJump = timeDiff > 1;
+
+    // 更新 lastTimeRef（不管是否執行切換，都要更新，避免重複觸發）
+    lastTimeRef.current = currentTime;
+
+    if (!isLargeJump) return; // 正常播放時不執行
+
     // 根據 currentTime 找到對應的句子
     const newIndex = segments.findIndex(
       segment => currentTime >= segment.startTime && currentTime < segment.endTime
