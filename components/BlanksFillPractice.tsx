@@ -331,6 +331,23 @@ export function BlanksFillPractice({
     }
   };
 
+  // 監聽時間變化，當拖曳時間軸時自動跳轉到對應的句子
+  useEffect(() => {
+    // 根據 currentTime 找到對應的句子
+    const newIndex = segments.findIndex(
+      segment => currentTime >= segment.startTime && currentTime < segment.endTime
+    );
+
+    // 如果找到對應的句子且與當前句子不同，則跳轉
+    if (newIndex !== -1 && newIndex !== currentSegmentIndex) {
+      onSegmentIndexChange(newIndex);
+      onFeedbackChange(false);
+      clearLoopTimeout();
+      setPausedTime(null);
+      setIsStarting(false);
+    }
+  }, [currentTime, segments, currentSegmentIndex, onSegmentIndexChange, onFeedbackChange, clearLoopTimeout]);
+
   // 監聽播放時間，自動暫停在句子結尾或循環播放
   useEffect(() => {
     const currentSegment = segments[currentSegmentIndex];
@@ -342,7 +359,7 @@ export function BlanksFillPractice({
           setIsPlaying(false);
           setIsLoopWaiting(true);
           setLoopCountdown(1);
-          
+
           // 倒數計時效果
           const countdownInterval = setInterval(() => {
             setLoopCountdown(prev => {
@@ -353,7 +370,7 @@ export function BlanksFillPractice({
               return prev - 1;
             });
           }, 1000);
-          
+
           // 1秒後重新播放
           loopTimeoutRef.current = setTimeout(() => {
             playCurrentSegment();
