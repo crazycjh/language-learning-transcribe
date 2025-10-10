@@ -265,7 +265,16 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                     ? "bg-blue-600 text-white"
                     : "bg-slate-700 text-slate-300 hover:bg-slate-600"
                 }`}
-                onClick={() => setIsPracticeMode(true)}
+                onClick={() => {
+                  setIsPracticeMode(true);
+                  // 根據當前時間計算對應的句子索引
+                  const newIndex = segments.findIndex(
+                    segment => currentTime >= segment.startTime && currentTime < segment.endTime
+                  );
+                  if (newIndex !== -1) {
+                    setCurrentSegmentIndex(newIndex);
+                  }
+                }}
               >
                 聽打練習
               </button>
