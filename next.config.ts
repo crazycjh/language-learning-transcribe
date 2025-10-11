@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true
   },
   images: {
+    unoptimized: true, // 完全禁用 Image Optimization
     remotePatterns: [
       {
         protocol: 'https',

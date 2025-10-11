@@ -25,6 +25,7 @@ export async function GET(
   // 從 query parameter 取得指定的副檔名
   const url = new URL(req.url);
   const specifiedExt = url.searchParams.get('ext');
+  
   // 如果有指定副檔名，優先嘗試該格式
   if (specifiedExt) {
     try {
@@ -35,11 +36,22 @@ export async function GET(
       if (imageResponse.ok && contentType?.startsWith('image/')) {
         const imageBuffer = await imageResponse.arrayBuffer();
 
+        // 檢查 worker 的快取狀態
+        const cfCacheStatus = imageResponse.headers.get('cf-cache-status');
+        const xCacheStatus = imageResponse.headers.get('x-cache-status');
+        const cacheStatus = cfCacheStatus || xCacheStatus || 'UNKNOWN';
+
+        console.log(`[Thumbnail API] videoId: ${videoId}, ext: ${specifiedExt}, cache: ${cacheStatus}`);
+
+        // 從 worker response 讀取 headers，如果有就用它
+        const cacheControl = imageResponse.headers.get('cache-control') || 'public, max-age=31536000, immutable';
+
         return new Response(imageBuffer, {
           headers: {
             'Content-Type': getMimeType(specifiedExt),
-            'Cache-Control': 'public, max-age=31536000, immutable',
+            'Cache-Control': cacheControl, // 優先使用 worker 的設定
             'Access-Control-Allow-Origin': '*',
+            'X-Worker-Cache-Status': cacheStatus, // 傳遞給前端
           },
         });
       }
