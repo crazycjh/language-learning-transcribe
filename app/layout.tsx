@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('metadata');
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:5566';
 
   return {
     title: t('title'),
@@ -32,6 +33,28 @@ export async function generateMetadata(): Promise<Metadata> {
       width: 'device-width',
       initialScale: 1,
       maximumScale: 1,
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'zh_TW',
+      url: siteUrl,
+      siteName: t('title'),
+      title: t('title'),
+      description: t('description'),
+      images: [
+        {
+          url: `${siteUrl}/icon-512x512.png`,
+          width: 512,
+          height: 512,
+          alt: t('title'),
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('title'),
+      description: t('description'),
+      images: [`${siteUrl}/icon-512x512.png`],
     },
   };
 }
