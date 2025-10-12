@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Play, Eye, User, Headphones } from 'lucide-react';
@@ -79,6 +79,7 @@ export default function VideoListPage() {
 
 function VideoCard({ video }: { video: VideoListEntry }) {
   const t = useTranslations('videoList');
+  const locale = useLocale();
   const [imageError, setImageError] = useState(false);
   const queryClient = useQueryClient();
 
@@ -150,7 +151,7 @@ function VideoCard({ video }: { video: VideoListEntry }) {
           )}
         </CardDescription>
 
-        <Link href={`/vp/${video.videoId}`}>
+        <Link href={`/${locale}/vp/${video.videoId}`}>
           <Button className="w-full text-xs md:text-sm px-2 md:px-4" size="sm">
             <Play className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
             <span className="hidden sm:inline">{t('startPractice')}</span>

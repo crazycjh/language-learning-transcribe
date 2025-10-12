@@ -1,21 +1,36 @@
 import type { Metadata } from "next";
 import { getTranslations } from 'next-intl/server';
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations('metadata');
   const tVideoList = await getTranslations('videoList');
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:5566';
+  // 只在開發環境允許 localhost fallback，Production 必須設定環境變數
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.NODE_ENV === 'development'
+      ? 'http://localhost:3500'
+      : (() => { throw new Error('NEXT_PUBLIC_SITE_URL must be set in production') })()
+    );
 
-  const title = tVideoList('pageTitle') + ' | ' + t('title');
+  const title = t('title');
   const description = tVideoList('pageDescription');
+  const canonicalUrl = `${siteUrl}/${locale}/video-list`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        'zh-TW': `${siteUrl}/zh-TW/video-list`,
+        'en': `${siteUrl}/en/video-list`,
+        'ja': `${siteUrl}/ja/video-list`,
+      },
+    },
     openGraph: {
       title,
       description,
-      url: `${siteUrl}/video-list`,
+      url: canonicalUrl,
       type: 'website',
       images: [
         {

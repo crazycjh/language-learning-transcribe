@@ -3,16 +3,17 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 export function Header() {
   const t = useTranslations('metadata');
+  const locale = useLocale();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-800 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
       <div className="container mx-auto flex h-14 items-center justify-between px-4 gap-2">
         <Link
-          href="/video-list"
+          href={`/${locale}/video-list`}
           className="flex items-center hover:opacity-80 transition-opacity"
         >
           <Image
