@@ -252,12 +252,11 @@ export function YouTubePlayer({
       }
     };
 
-    // 清理函數
+    // 清理函數（使用 effect 開始時複製的 container）
     return () => {
       cleanupResources();
       window.removeEventListener('message', handleMessage);
       if (ytTimer) window.clearInterval(ytTimer);
-      const container = containerRef.current;
       if (container) {
         container.innerHTML = '';
       }

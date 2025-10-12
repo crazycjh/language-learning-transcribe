@@ -20,7 +20,7 @@ export default function VideoListPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4">
+      <div className="max-w-7xl w-full mx-auto px-4 md:px-10 py-4">
         <h1 className="text-2xl font-bold mb-6 text-slate-100">{t('title')}</h1>
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
@@ -32,7 +32,7 @@ export default function VideoListPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto p-4">
+      <div className="max-w-7xl w-full mx-auto px-4 md:px-10 py-4">
         <h1 className="text-2xl font-bold mb-6 text-slate-100">{t('title')}</h1>
         <div className="text-center text-red-400 p-8">
           <p>{t('loadError')}</p>
@@ -50,7 +50,7 @@ export default function VideoListPage() {
 
   if (!videoList || videoList.videos.length === 0) {
     return (
-      <div className="container mx-auto p-4">
+      <div className="max-w-7xl w-full mx-auto px-4 md:px-10 py-4">
         <h1 className="text-2xl font-bold mb-6 text-slate-100">{t('title')}</h1>
         <div className="text-center text-slate-400 p-8">
           <p>{t('noVideos')}</p>
@@ -60,7 +60,7 @@ export default function VideoListPage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="max-w-7xl w-full mx-auto px-4 md:px-10 py-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-slate-100">{t('title')}</h1>
         <div className="text-sm text-slate-400">
