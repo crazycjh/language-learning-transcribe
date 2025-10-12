@@ -1,10 +1,69 @@
 {
   "metadata": {
-    "title": "YouTube動画学習プラットフォーム",
-    "description": "動画の文字起こし、インタラクティブな字幕、言語学習機能"
+    "title": "ディクテーション言語学習",
+    "description": "動画のディクテーションと発話練習でリスニングとスピーキングを向上"
   },
   "common": {
     "language": "言語",
-    "changeLanguage": "言語を変更"
+    "changeLanguage": "言語を変更",
+    "back": "戻る",
+    "loading": "読み込み中...",
+    "reload": "再読み込み"
+  },
+  "videoList": {
+    "title": "動画リスト",
+    "loadingVideos": "読み込み中...",
+    "loadError": "動画リストの読み込みに失敗しました",
+    "noVideos": "文字起こしされた動画はありません",
+    "totalVideos": "合計 {count} 本の動画",
+    "startPractice": "練習を開始",
+    "practice": "練習",
+    "unknown": "不明",
+    "pageTitle": "動画リスト",
+    "pageDescription": "文字起こしされたすべての動画を閲覧し、言語学習を始めましょう"
+  },
+  "videoPlayer": {
+    "loadingSubtitles": "字幕を読み込み中...",
+    "watchMode": "視聴モード",
+    "practiceMode": "ディクテーション練習",
+    "share": "共有",
+    "shareTitle": "現在位置を共有",
+    "linkCopied": "リンクをコピーしました！",
+    "playbackSpeed": "再生速度"
+  },
+  "practice": {
+    "title": "ディクテーション練習モード",
+    "progress": "{current} / {total}",
+    "difficultySettings": "難易度設定：",
+    "beginner": "初級",
+    "intermediate": "中級",
+    "advanced": "上級",
+    "playbackControls": "再生コントロール：",
+    "loopPlayback": "ループ再生",
+    "play": "再生",
+    "pause": "一時停止",
+    "starting": "起動中...",
+    "skipWait": "待機をスキップ ({seconds}秒)",
+    "repeat": "繰り返し",
+    "previous": "前へ",
+    "next": "次へ",
+    "practiceArea": "ディクテーション練習：",
+    "freeTypingHint": "音声を聞いて、下に完全な文を入力してください：",
+    "freeTypingPlaceholder": "聞こえた内容を入力してください...",
+    "submitAnswer": "答えを提出",
+    "pleaseTypeContent": "聞こえた内容を入力してください",
+    "feedback": "結果フィードバック：",
+    "accuracy": "正確度：",
+    "attemptCount": "第 {count} 回目",
+    "yourInput": "あなたの入力：",
+    "correctAnswer": "正解：",
+    "answerCheck": "答え合わせ（正解数/空欄総数）：",
+    "empty": "(空白)",
+    "accuracyNote": "* 正確度計算：正解した空欄数 ÷ 空欄総数 × 100%",
+    "retry": "再挑戦",
+    "listenAgain": "もう一度聞く",
+    "loadingContent": "練習内容を読み込み中...",
+    "allComplete": "練習完了！",
+    "congratulations": "おめでとうございます！すべての文の練習が完了しました"
   }
 }

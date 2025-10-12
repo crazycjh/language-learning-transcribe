@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { QueryProvider } from '@/lib/providers/query-provider';
+import { Header } from '@/components/Header';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,6 +24,16 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t('title'),
     description: t('description'),
     manifest: '/manifest.json',
+    icons: {
+      icon: [
+        { url: '/icon.png' },
+        { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+        { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+      ],
+      apple: [
+        { url: '/icon-192x192.png' },
+      ],
+    },
     themeColor: '#0f172a',
     appleWebApp: {
       capable: true,
@@ -73,6 +84,7 @@ export default async function RootLayout({
       >
         <QueryProvider>
           <NextIntlClientProvider messages={messages}>
+            <Header />
             {children}
           </NextIntlClientProvider>
         </QueryProvider>

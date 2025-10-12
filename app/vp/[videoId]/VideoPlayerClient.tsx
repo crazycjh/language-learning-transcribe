@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import {
   YouTubePlayer,
   type YouTubePlayerInterface,
@@ -16,6 +17,8 @@ import { ArrowLeft, Loader2, Share } from "lucide-react";
 
 // 4voKeMm3u1Y
 export default function VideoPlayerClient({ videoId }: { videoId: string }) {
+  const t = useTranslations('videoPlayer');
+  const tCommon = useTranslations('common');
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -220,7 +223,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     return (
       <div className="bg-slate-900 h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-slate-400 mr-2" />
-        {/* <span className="text-slate-400 text-lg">載入字幕中...</span> */}
+        {/* <span className="text-slate-400 text-lg">{t('loadingSubtitles')}</span> */}
       </div>
     );
   }
@@ -234,7 +237,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
           className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 text-sm md:text-base text-slate-300 hover:text-slate-100 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
-          <span>返回</span>
+          <span>{tCommon('back')}</span>
         </button>
       </div>
 
@@ -257,7 +260,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                 }`}
                 onClick={() => setIsPracticeMode(false)}
               >
-                觀看模式
+                {t('watchMode')}
               </button>
               <button
                 className={`px-2 py-1 md:px-4 md:py-2 text-sm md:text-base rounded transition-colors ${
@@ -276,7 +279,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                   }
                 }}
               >
-                聽打練習
+                {t('practiceMode')}
               </button>
             </div>
             {/* 分享按鈕 */}
@@ -284,20 +287,20 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
               <button
                 onClick={handleShare}
                 className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-4 md:py-2 text-sm md:text-base bg-slate-700 text-slate-300 hover:bg-slate-600 rounded transition-colors"
-                title="分享當前位置"
+                title={t('shareTitle')}
               >
                 <Share className="w-3 h-3 md:w-4 md:h-4" />
-                <span className="hidden md:inline">分享</span>
+                <span className="hidden md:inline">{t('share')}</span>
               </button>
               {showCopiedMessage && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1 bg-blue-600 text-white text-xs md:text-sm rounded whitespace-nowrap z-10">
-                  已複製連結！
+                  {t('linkCopied')}
                 </div>
               )}
             </div>
             <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
               <span className="text-slate-400 text-xs md:text-base">
-                播放速度:
+                {t('playbackSpeed')}:
               </span>
               <select
                 value={playbackRate}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Play, Eye, User, Headphones } from 'lucide-react';
@@ -11,6 +12,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 export default function VideoListPage() {
+  const t = useTranslations('videoList');
   const { data: videoList, isLoading, error, refetch } = useQuery({
     queryKey: ['videoList'],
     queryFn: getVideoList,
@@ -19,10 +21,10 @@ export default function VideoListPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-6 text-slate-100">影片列表</h1>
+        <h1 className="text-2xl font-bold mb-6 text-slate-100">{t('title')}</h1>
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-          <span className="ml-2 text-slate-400">載入中...</span>
+          <span className="ml-2 text-slate-400">{t('loadingVideos')}</span>
         </div>
       </div>
     );
@@ -31,15 +33,15 @@ export default function VideoListPage() {
   if (error) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-6 text-slate-100">影片列表</h1>
+        <h1 className="text-2xl font-bold mb-6 text-slate-100">{t('title')}</h1>
         <div className="text-center text-red-400 p-8">
-          <p>無法載入影片列表</p>
+          <p>{t('loadError')}</p>
           <Button
             onClick={() => refetch()}
             className="mt-4"
             variant="outline"
           >
-            重新載入
+            {t('reload', { ns: 'common' })}
           </Button>
         </div>
       </div>
@@ -49,9 +51,9 @@ export default function VideoListPage() {
   if (!videoList || videoList.videos.length === 0) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-6 text-slate-100">影片列表</h1>
+        <h1 className="text-2xl font-bold mb-6 text-slate-100">{t('title')}</h1>
         <div className="text-center text-slate-400 p-8">
-          <p>目前沒有已轉錄的影片</p>
+          <p>{t('noVideos')}</p>
         </div>
       </div>
     );
@@ -60,12 +62,12 @@ export default function VideoListPage() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-100">影片列表</h1>
+        <h1 className="text-2xl font-bold text-slate-100">{t('title')}</h1>
         <div className="text-sm text-slate-400">
-          共 {videoList.total_count} 部影片
+          {t('totalVideos', { count: videoList.total_count })}
         </div>
       </div>
-      
+
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
         {videoList.videos.map((video) => (
           <VideoCard key={video.videoId} video={video} />
@@ -76,6 +78,7 @@ export default function VideoListPage() {
 }
 
 function VideoCard({ video }: { video: VideoListEntry }) {
+  const t = useTranslations('videoList');
   const [imageError, setImageError] = useState(false);
   const queryClient = useQueryClient();
 
@@ -136,7 +139,7 @@ function VideoCard({ video }: { video: VideoListEntry }) {
         <CardDescription className="text-slate-400 text-[10px] md:text-xs mb-2 md:mb-3">
           <div className="flex items-center gap-1 mb-1">
             <User className="h-2.5 w-2.5 md:h-3 md:w-3" />
-            <span className="truncate">{video.uploader || '未知'}</span>
+            <span className="truncate">{video.uploader || t('unknown')}</span>
           </div>
 
           {video.view_count && (
@@ -150,8 +153,8 @@ function VideoCard({ video }: { video: VideoListEntry }) {
         <Link href={`/vp/${video.videoId}`}>
           <Button className="w-full text-xs md:text-sm px-2 md:px-4" size="sm">
             <Play className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-            <span className="hidden sm:inline">開始練習</span>
-            <span className="sm:hidden">練習</span>
+            <span className="hidden sm:inline">{t('startPractice')}</span>
+            <span className="sm:hidden">{t('practice')}</span>
           </Button>
         </Link>
       </CardContent>

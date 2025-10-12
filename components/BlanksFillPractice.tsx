@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Play, Pause, RotateCcw, Repeat, SkipBack, SkipForward, Loader2 } from "lucide-react";
-import { 
-  type Segment, 
-  type BlanksSegment, 
-  type BlankItem, 
+import {
+  type Segment,
+  type BlanksSegment,
+  type BlankItem,
   BlanksDifficulty,
   convertToBlanksSegment,
   calculateBlanksAccuracy,
@@ -64,6 +65,7 @@ export function BlanksFillPractice({
   onFeedbackChange,
   externalPlayState
 }: BlanksFillPracticeProps) {
+  const t = useTranslations('practice');
   const [difficulty, setDifficulty] = useState<BlanksDifficulty>(BlanksDifficulty.INTERMEDIATE);
   const [blanksSegments, setBlanksSegments] = useState<BlanksSegment[]>([]);
   const [practiceState, setPracticeState] = useState<PracticeState>({
@@ -567,7 +569,7 @@ export function BlanksFillPractice({
       <div className="h-full bg-slate-900 flex items-center justify-center">
         <div className="text-slate-400 text-center flex flex-col items-center gap-3">
           <Loader2 className="w-8 h-8 animate-spin" />
-          <h3 className="text-lg">載入練習內容中...</h3>
+          <h3 className="text-lg">{t('loadingContent')}</h3>
         </div>
       </div>
     );
@@ -577,8 +579,8 @@ export function BlanksFillPractice({
     return (
       <div className="h-full bg-slate-900 flex items-center justify-center">
         <div className="text-slate-400 text-center">
-          <h3 className="text-xl mb-2">練習完成！</h3>
-          <p>恭喜您完成了所有句子的練習</p>
+          <h3 className="text-xl mb-2">{t('allComplete')}</h3>
+          <p>{t('congratulations')}</p>
         </div>
       </div>
     );
@@ -596,9 +598,9 @@ export function BlanksFillPractice({
       {/* 標題和進度 */}
       <div className="p-2 md:p-4 border-b border-slate-800">
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-base md:text-xl font-semibold text-slate-100">聽打練習模式</h2>
+          <h2 className="text-base md:text-xl font-semibold text-slate-100">{t('title')}</h2>
           <span className="text-xs md:text-base text-slate-400">
-            {currentSegmentIndex + 1} / {segments.length}
+            {t('progress', { current: currentSegmentIndex + 1, total: segments.length })}
           </span>
         </div>
         <div className="w-full bg-slate-800 rounded-full h-2">
@@ -612,7 +614,7 @@ export function BlanksFillPractice({
       <ScrollArea className="flex-1 p-2 md:p-4">
         {/* 難度選擇器 */}
         <div className="mb-4 md:mb-6">
-          <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">難度設定：</h4>
+          <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">{t('difficultySettings')}</h4>
           <div className="flex gap-1 md:gap-2">
             {Object.values(BlanksDifficulty).map((level) => (
               <button
@@ -624,8 +626,8 @@ export function BlanksFillPractice({
                     : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                 }`}
               >
-                {level === BlanksDifficulty.BEGINNER ? '初級' :
-                 level === BlanksDifficulty.INTERMEDIATE ? '中級' : '高級'}
+                {level === BlanksDifficulty.BEGINNER ? t('beginner') :
+                 level === BlanksDifficulty.INTERMEDIATE ? t('intermediate') : t('advanced')}
               </button>
             ))}
           </div>
@@ -633,7 +635,7 @@ export function BlanksFillPractice({
 
         {/* 播放控制 */}
         <div className="mb-4 md:mb-6">
-          <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">播放控制：</h4>
+          <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">{t('playbackControls')}</h4>
 
           <div className="flex items-center gap-1 md:gap-2 flex-wrap">
             {/* 循環播放 checkbox */}
@@ -646,7 +648,7 @@ export function BlanksFillPractice({
               />
               <Repeat className={`w-3 h-3 md:w-4 md:h-4 ${isLooping ? 'text-blue-400' : 'text-slate-400'}`} />
               <span className={`hidden md:inline text-xs md:text-sm ${isLooping ? 'text-blue-400' : 'text-slate-400'}`}>
-                循環播放
+                {t('loopPlayback')}
               </span>
             </label>
 
@@ -664,12 +666,12 @@ export function BlanksFillPractice({
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               <span className="hidden md:inline">
                 {isStarting
-                  ? '啟動中...'
+                  ? t('starting')
                   : isLoopWaiting
-                    ? `跳過等待 (${loopCountdown}s)`
+                    ? t('skipWait', { seconds: loopCountdown })
                     : isPlaying
-                      ? '暫停'
-                      : '播放'
+                      ? t('pause')
+                      : t('play')
                 }
               </span>
             </button>
@@ -679,7 +681,7 @@ export function BlanksFillPractice({
               className="flex items-center justify-center gap-1 md:gap-2 px-4 py-2 md:px-4 md:py-2 text-xs md:text-base bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg transition-colors flex-1 md:flex-none"
             >
               <RotateCcw className="w-4 h-4" />
-              <span className="hidden md:inline">重複</span>
+              <span className="hidden md:inline">{t('repeat')}</span>
             </button>
 
             <button
@@ -688,7 +690,7 @@ export function BlanksFillPractice({
               disabled={currentSegmentIndex <= 0}
             >
               <SkipBack className="w-4 h-4" />
-              <span className="hidden md:inline">上一句</span>
+              <span className="hidden md:inline">{t('previous')}</span>
             </button>
 
             <button
@@ -697,25 +699,25 @@ export function BlanksFillPractice({
               disabled={currentSegmentIndex >= segments.length - 1}
             >
               <SkipForward className="w-4 h-4" />
-              <span className="hidden md:inline">下一句</span>
+              <span className="hidden md:inline">{t('next')}</span>
             </button>
           </div>
         </div>
 
         {/* 聽打區域 */}
         <div className="mb-4 md:mb-6">
-          <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">聽打練習：</h4>
+          <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">{t('practiceArea')}</h4>
           <div className="bg-slate-800 rounded-lg p-2 md:p-4">
             {difficulty === BlanksDifficulty.ADVANCED ? (
               /* 高級模式：自由聽打 */
               <div>
                 <p className="text-slate-400 mb-2 md:mb-3 text-xs md:text-sm">
-                  請聽音頻後，在下方輸入您聽到的完整句子：
+                  {t('freeTypingHint')}
                 </p>
                 <textarea
                   value={practiceState.freeTypingInput}
                   onChange={(e) => setPracticeState(prev => ({ ...prev, freeTypingInput: e.target.value }))}
-                  placeholder="請輸入您聽到的內容..."
+                  placeholder={t('freeTypingPlaceholder')}
                   className="w-full h-32 p-2 md:p-4 text-sm md:text-base bg-slate-700 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none"
                   disabled={showFeedback}
                 />
@@ -775,7 +777,7 @@ export function BlanksFillPractice({
                 })}
               </div>
             )}
-            
+
             {!showFeedback && (
               <div className="mt-2 md:mt-4">
                 <button
@@ -783,11 +785,11 @@ export function BlanksFillPractice({
                   disabled={!canSubmit}
                   className="px-4 py-1.5 md:px-6 md:py-2 text-sm md:text-base bg-green-600 hover:bg-green-700 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg transition-colors"
                 >
-                  提交答案
+                  {t('submitAnswer')}
                 </button>
                 {difficulty === BlanksDifficulty.ADVANCED && !hasFreeTypingInput && (
                   <p className="text-slate-500 text-xs md:text-sm mt-2">
-                    請輸入聽到的內容
+                    {t('pleaseTypeContent')}
                   </p>
                 )}
               </div>
@@ -798,11 +800,11 @@ export function BlanksFillPractice({
         {/* 反饋區域 */}
         {showFeedback && (
           <div className="mb-4 md:mb-6">
-            <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">結果反饋：</h4>
+            <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">{t('feedback')}</h4>
             <div className="bg-slate-800 rounded-lg p-2 md:p-4">
               <div className="mb-2 md:mb-3 flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <span className="text-slate-400 text-xs md:text-base">準確度：</span>
+                  <span className="text-slate-400 text-xs md:text-base">{t('accuracy')}</span>
                   <span className={`ml-1 md:ml-2 font-semibold text-base md:text-lg ${
                     practiceState.accuracy >= 80 ? 'text-green-400' :
                     practiceState.accuracy >= 60 ? 'text-yellow-400' : 'text-red-400'
@@ -811,7 +813,7 @@ export function BlanksFillPractice({
                   </span>
                 </div>
                 <div className="text-slate-500 text-xs md:text-sm">
-                  第 {practiceState.attemptCount} 次嘗試
+                  {t('attemptCount', { count: practiceState.attemptCount })}
                 </div>
               </div>
 
@@ -820,18 +822,18 @@ export function BlanksFillPractice({
                   /* 高級模式：顯示用戶輸入 vs 正確答案 */
                   <div>
                     <div className="mb-2 md:mb-3">
-                      <p className="text-slate-400 mb-1 md:mb-2 text-xs md:text-sm">您的輸入：</p>
+                      <p className="text-slate-400 mb-1 md:mb-2 text-xs md:text-sm">{t('yourInput')}</p>
                       <p className="text-slate-300 bg-slate-700 p-2 md:p-3 rounded text-xs md:text-base">{practiceState.freeTypingInput}</p>
                     </div>
                     <div>
-                      <p className="text-slate-400 mb-1 md:mb-2 text-xs md:text-sm">正確答案：</p>
+                      <p className="text-slate-400 mb-1 md:mb-2 text-xs md:text-sm">{t('correctAnswer')}</p>
                       <p className="text-slate-100 bg-slate-700 p-2 md:p-3 rounded text-xs md:text-base">{currentBlanksSegment.text}</p>
                     </div>
                   </div>
                 ) : (
                   /* 初級中級模式：顯示空格檢查 */
                   <div>
-                    <p className="text-slate-400 mb-1 md:mb-2 text-xs md:text-sm">答案檢查（正確數/總空格數）：</p>
+                    <p className="text-slate-400 mb-1 md:mb-2 text-xs md:text-sm">{t('answerCheck')}</p>
                     <div className="flex flex-wrap gap-1 md:gap-2">
                       {(practiceState.submittedBlanks || currentBlanksSegment.blanks).map((blank) => (
                         <div key={blank.id} className="flex items-center gap-1 md:gap-2">
@@ -841,13 +843,13 @@ export function BlanksFillPractice({
                               ? 'bg-green-600/20 text-green-400'
                               : 'bg-red-600/20 text-red-400'
                           }`}>
-                            {blank.userInput || '(空白)'}
+                            {blank.userInput || t('empty')}
                           </span>
                         </div>
                       ))}
                     </div>
                     <p className="text-slate-500 text-[10px] md:text-xs mt-1 md:mt-2">
-                      * 準確度計算：正確填寫的空格數 ÷ 總空格數 × 100%
+                      {t('accuracyNote')}
                     </p>
                   </div>
                 )}
@@ -859,7 +861,7 @@ export function BlanksFillPractice({
                   className="px-2 py-1 md:px-4 md:py-2 text-xs md:text-base bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors flex items-center gap-1 md:gap-2"
                 >
                   <RotateCcw className="w-3 h-3 md:w-4 md:h-4" />
-                  重新嘗試
+                  {t('retry')}
                 </button>
 
                 <button
@@ -867,7 +869,7 @@ export function BlanksFillPractice({
                   className="px-2 py-1 md:px-4 md:py-2 text-xs md:text-base bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-1 md:gap-2"
                 >
                   <Play className="w-3 h-3 md:w-4 md:h-4" />
-                  再聽一次
+                  {t('listenAgain')}
                 </button>
               </div>
             </div>

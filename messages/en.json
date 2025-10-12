@@ -1,10 +1,69 @@
 {
   "metadata": {
-    "title": "YouTube Video Learning Platform",
-    "description": "Video transcription, interactive subtitles and language learning features"
+    "title": "Dictation Language Learning",
+    "description": "Improve listening and speaking through video dictation and sentence practice"
   },
   "common": {
     "language": "Language",
-    "changeLanguage": "Change Language"
+    "changeLanguage": "Change Language",
+    "back": "Back",
+    "loading": "Loading...",
+    "reload": "Reload"
+  },
+  "videoList": {
+    "title": "Video List",
+    "loadingVideos": "Loading...",
+    "loadError": "Failed to load video list",
+    "noVideos": "No transcribed videos available",
+    "totalVideos": "{count} videos total",
+    "startPractice": "Start Practice",
+    "practice": "Practice",
+    "unknown": "Unknown",
+    "pageTitle": "Video List",
+    "pageDescription": "Browse all transcribed videos and start your language learning journey"
+  },
+  "videoPlayer": {
+    "loadingSubtitles": "Loading subtitles...",
+    "watchMode": "Watch Mode",
+    "practiceMode": "Dictation Practice",
+    "share": "Share",
+    "shareTitle": "Share current position",
+    "linkCopied": "Link copied!",
+    "playbackSpeed": "Playback Speed"
+  },
+  "practice": {
+    "title": "Dictation Practice Mode",
+    "progress": "{current} / {total}",
+    "difficultySettings": "Difficulty Settings:",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "playbackControls": "Playback Controls:",
+    "loopPlayback": "Loop Playback",
+    "play": "Play",
+    "pause": "Pause",
+    "starting": "Starting...",
+    "skipWait": "Skip Wait ({seconds}s)",
+    "repeat": "Repeat",
+    "previous": "Previous",
+    "next": "Next",
+    "practiceArea": "Dictation Practice:",
+    "freeTypingHint": "Listen to the audio and type the complete sentence below:",
+    "freeTypingPlaceholder": "Type what you heard...",
+    "submitAnswer": "Submit Answer",
+    "pleaseTypeContent": "Please type what you heard",
+    "feedback": "Feedback:",
+    "accuracy": "Accuracy:",
+    "attemptCount": "Attempt {count}",
+    "yourInput": "Your Input:",
+    "correctAnswer": "Correct Answer:",
+    "answerCheck": "Answer Check (Correct/Total Blanks):",
+    "empty": "(empty)",
+    "accuracyNote": "* Accuracy: Correct blanks ÷ Total blanks × 100%",
+    "retry": "Retry",
+    "listenAgain": "Listen Again",
+    "loadingContent": "Loading practice content...",
+    "allComplete": "Practice Complete!",
+    "congratulations": "Congratulations! You've completed all sentences"
   }
 }

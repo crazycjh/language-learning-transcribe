@@ -1,10 +1,69 @@
 {
   "metadata": {
-    "title": "YouTube 影片學習平台",
-    "description": "影片轉錄、互動字幕與語言學習功能"
+    "title": "語聽通",
+    "description": "透過影片逐句聽寫和口說練習,提升語言聽力與表達能力"
   },
   "common": {
     "language": "語言",
-    "changeLanguage": "切換語言"
+    "changeLanguage": "切換語言",
+    "back": "返回",
+    "loading": "載入中...",
+    "reload": "重新載入"
+  },
+  "videoList": {
+    "title": "影片列表",
+    "loadingVideos": "載入中...",
+    "loadError": "無法載入影片列表",
+    "noVideos": "目前沒有已轉錄的影片",
+    "totalVideos": "共 {count} 部影片",
+    "startPractice": "開始練習",
+    "practice": "練習",
+    "unknown": "未知",
+    "pageTitle": "影片列表",
+    "pageDescription": "瀏覽所有已轉錄的影片，開始您的語言學習之旅"
+  },
+  "videoPlayer": {
+    "loadingSubtitles": "載入字幕中...",
+    "watchMode": "觀看模式",
+    "practiceMode": "聽打練習",
+    "share": "分享",
+    "shareTitle": "分享當前位置",
+    "linkCopied": "已複製連結！",
+    "playbackSpeed": "播放速度"
+  },
+  "practice": {
+    "title": "聽打練習模式",
+    "progress": "{current} / {total}",
+    "difficultySettings": "難度設定：",
+    "beginner": "初級",
+    "intermediate": "中級",
+    "advanced": "高級",
+    "playbackControls": "播放控制：",
+    "loopPlayback": "循環播放",
+    "play": "播放",
+    "pause": "暫停",
+    "starting": "啟動中...",
+    "skipWait": "跳過等待 ({seconds}s)",
+    "repeat": "重複",
+    "previous": "上一句",
+    "next": "下一句",
+    "practiceArea": "聽打練習：",
+    "freeTypingHint": "請聽音頻後，在下方輸入您聽到的完整句子：",
+    "freeTypingPlaceholder": "請輸入您聽到的內容...",
+    "submitAnswer": "提交答案",
+    "pleaseTypeContent": "請輸入聽到的內容",
+    "feedback": "結果反饋：",
+    "accuracy": "準確度：",
+    "attemptCount": "第 {count} 次嘗試",
+    "yourInput": "您的輸入：",
+    "correctAnswer": "正確答案：",
+    "answerCheck": "答案檢查（正確數/總空格數）：",
+    "empty": "(空白)",
+    "accuracyNote": "* 準確度計算：正確填寫的空格數 ÷ 總空格數 × 100%",
+    "retry": "重新嘗試",
+    "listenAgain": "再聽一次",
+    "loadingContent": "載入練習內容中...",
+    "allComplete": "練習完成！",
+    "congratulations": "恭喜您完成了所有句子的練習"
   }
 }
