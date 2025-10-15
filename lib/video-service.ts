@@ -2,7 +2,13 @@ import { VideoList } from './types';
 
 export async function getVideoList(): Promise<VideoList> {
   try {
-    const response = await fetch('/api/video-list');
+    const response = await fetch('/api/video-list', {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
     if (!response.ok) {
       throw new Error(`Failed to fetch video list: ${response.status}`);
     }
@@ -15,7 +21,13 @@ export async function getVideoList(): Promise<VideoList> {
 
 export async function getSrtContent(videoId: string): Promise<string> {
   try {
-    const response = await fetch(`/api/srt/${videoId}`);
+    const response = await fetch(`/api/srt/${videoId}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
     if (!response.ok) {
       throw new Error(`Failed to fetch SRT: ${response.status}`);
     }
