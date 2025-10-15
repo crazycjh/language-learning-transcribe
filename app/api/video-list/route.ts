@@ -6,7 +6,9 @@ export async function GET() {
 
   try {
     console.log('Fetching video list from worker:', workerUrl);
-    const resp = await fetch(`${workerUrl}/videolist`);
+    const resp = await fetch(`${workerUrl}/videolist`, {
+      cache: 'no-store'
+    });
     console.log('url : ', `${workerUrl}/videolist`)
 
     if (!resp.ok) {
@@ -22,6 +24,11 @@ export async function GET() {
         headers.set(key, value);
       }
     });
+
+    // 明確設定 no-cache headers
+    headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    headers.set('Pragma', 'no-cache');
+    headers.set('Expires', '0');
 
     return new Response(resp.body, {
       status: resp.status,
