@@ -69,7 +69,7 @@ npm run dev
 
 ### 訪問應用
 開發伺服器啟動後，在瀏覽器中訪問：
-- **本地地址**: [http://localhost:5566](http://localhost:5566)
+- **本地地址**: [http://localhost:3500](http://localhost:3500)
 - **主要功能**: 應用將自動重定向到轉錄功能頁面
 
 ---

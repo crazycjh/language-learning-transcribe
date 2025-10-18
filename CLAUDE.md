@@ -22,7 +22,7 @@ npm start
 npm run lint
 ```
 
-The development server runs on **port 5566** (not the default 3000).
+The development server runs on **port 3500** (not the default 3000).
 
 ## Product Vision and Business Goals
 
