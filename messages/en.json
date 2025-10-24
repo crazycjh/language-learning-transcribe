@@ -25,7 +25,7 @@
   "videoPlayer": {
     "loadingSubtitles": "Loading subtitles...",
     "watchMode": "Watch Mode",
-    "practiceMode": "Dictation Practice",
+    "practiceMode": "Practice Mode",
     "share": "Share",
     "shareTitle": "Share current position",
     "linkCopied": "Link copied!",
@@ -39,7 +39,7 @@
     "intermediate": "Intermediate",
     "advanced": "Advanced",
     "playbackControls": "Playback Controls:",
-    "loopPlayback": "Loop Playback",
+    "loopPlayback": "Loop",
     "play": "Play",
     "pause": "Pause",
     "starting": "Starting...",
