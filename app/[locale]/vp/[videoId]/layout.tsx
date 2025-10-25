@@ -25,7 +25,7 @@ export async function generateMetadata({
   try {
     if (workerUrl) {
       const response = await fetch(`${workerUrl}/videolist`, {
-        next: { revalidate: 3600 } // 快取 1 小時
+        cache: 'no-store'
       });
 
       if (response.ok) {
@@ -98,7 +98,7 @@ async function getVideoInfo(videoId: string) {
   try {
     if (workerUrl) {
       const response = await fetch(`${workerUrl}/videolist`, {
-        next: { revalidate: 3600 } // 快取 1 小時
+        cache: 'no-store'
       });
 
       if (response.ok) {

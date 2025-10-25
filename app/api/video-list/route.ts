@@ -5,14 +5,30 @@ export async function GET() {
   }
 
   try {
-    console.log('Fetching video list from worker:', workerUrl);
+    const startTime = Date.now();
+    console.log('🔍 [API] 開始 fetch videolist:', new Date().toISOString());
+
     const resp = await fetch(`${workerUrl}/videolist`, {
       cache: 'no-store'
     });
-    console.log('url : ', `${workerUrl}/videolist`)
+
+    const duration = Date.now() - startTime;
+    console.log('🔍 [API] fetch 完成，耗時:', duration, 'ms');
+
+    // 診斷：耗時判斷
+    if (duration < 10) {
+      console.log('⚠️  [API] 警告：耗時極短 (<10ms)，可能來自 Data Cache！');
+    }
 
     if (!resp.ok) {
       return new Response("Failed to fetch video list", { status: resp.status });
+    }
+
+    // 讀取資料並記錄
+    const data = await resp.json();
+    console.log('🔍 [API] 影片數量:', data.videos?.length || 0);
+    if (data.videos?.length > 0) {
+      console.log('🔍 [API] 第一部影片:', data.videos[0].title);
     }
 
     // 直接轉發 worker 的 response，但過濾掉可能暴露 worker 資訊的 headers
@@ -30,7 +46,11 @@ export async function GET() {
     headers.set('Pragma', 'no-cache');
     headers.set('Expires', '0');
 
-    return new Response(resp.body, {
+    // 加上診斷資訊
+    headers.set('X-Fetch-Duration', duration.toString());
+    headers.set('X-Fetch-Time', new Date().toISOString());
+
+    return Response.json(data, {
       status: resp.status,
       headers,
     });
