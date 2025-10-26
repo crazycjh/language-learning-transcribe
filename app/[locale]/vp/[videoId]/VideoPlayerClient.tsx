@@ -221,7 +221,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
 
   if (isLoading) {
     return (
-      <div className="bg-slate-900 h-screen flex items-center justify-center">
+      <div className="bg-slate-900 h-[calc(100vh-3.5rem)] flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-slate-400 mr-2" />
         {/* <span className="text-slate-400 text-lg">{t('loadingSubtitles')}</span> */}
       </div>
@@ -229,7 +229,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   }
 
   return (
-    <div className="bg-slate-900 h-screen flex flex-col">
+    <div className="bg-slate-900 h-[calc(100vh-3.5rem)] flex flex-col">
       {/* 返回按鈕 */}
       <div className="flex-shrink-0 max-w-7xl w-full mx-auto px-4 md:px-10 pt-4 pb-2">
         <button
@@ -241,7 +241,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
         </button>
       </div>
 
-      <div className="flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-4 px-4 md:px-10 pb-4 md:pb-10 overflow-y-auto scrollbar-hide">
+      <div className={`flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-4 px-4 md:px-10 pb-4 md:pb-10 ${isPracticeMode ? 'overflow-auto' : 'overflow-hidden'}`}>
         <div className="w-full md:w-1/2">
           <YouTubePlayer
             videoId={videoId}
@@ -337,7 +337,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
             </div>
           )}
         </div>
-        <div className="w-full md:w-1/2 h-[60vh] md:h-full">
+        <div className="w-full md:w-1/2 min-h-0 flex-1">
           {isPracticeMode ? (
             <BlanksFillPractice
               segments={segments}

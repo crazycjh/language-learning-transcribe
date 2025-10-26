@@ -24,12 +24,12 @@
   },
   "videoPlayer": {
     "loadingSubtitles": "Loading subtitles...",
-    "watchMode": "Watch Mode",
-    "practiceMode": "Practice Mode",
+    "watchMode": "Watch",
+    "practiceMode": "Dictation",
     "share": "Share",
     "shareTitle": "Share current position",
     "linkCopied": "Link copied!",
-    "playbackSpeed": "Playback Speed"
+    "playbackSpeed": "Speed"
   },
   "practice": {
     "title": "Dictation Practice Mode",
