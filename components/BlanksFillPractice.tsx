@@ -594,7 +594,7 @@ export function BlanksFillPractice({
     : true;               // 初級中級隨時可提交
 
   return (
-    <div className="h-full bg-slate-900 flex flex-col">
+    <div className="min-h-0 flex-1 bg-slate-900 flex flex-col">
       {/* 標題和進度 */}
       <div className="p-2 md:p-4 border-b border-slate-800">
         <div className="flex justify-between items-center mb-2">
