@@ -53,12 +53,3 @@ export function formatViewCount(count: number): string {
   }
   return `${count} 次觀看`;
 }
-
-// ❌ CODE REVIEW VIOLATION: Missing try-catch error handling
-export async function deleteVideo(videoId: string): Promise<void> {
-  const response = await fetch(`/api/video/${videoId}`, {
-    method: 'DELETE',
-  });
-  const data = await response.json();
-  return data;
-}
