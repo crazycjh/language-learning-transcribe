@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import {
   YouTubePlayer,
   type YouTubePlayerInterface,
@@ -19,6 +19,7 @@ import { ArrowLeft, Loader2, Share } from "lucide-react";
 export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   const t = useTranslations('videoPlayer');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -137,7 +138,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
 
   // 生成分享連結
   const generateShareUrl = useCallback(() => {
-    const baseUrl = `${window.location.origin}/vp/${videoId}`;
+    const baseUrl = `${window.location.origin}/${locale}/vp/${videoId}`;
     const params = new URLSearchParams();
 
     if (isPracticeMode) {
@@ -149,7 +150,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     }
 
     return `${baseUrl}?${params.toString()}`;
-  }, [videoId, isPracticeMode, currentSegmentIndex, currentTime]);
+  }, [locale, videoId, isPracticeMode, currentSegmentIndex, currentTime]);
 
   // 複製分享連結到剪貼簿
   const handleShare = useCallback(async () => {
@@ -193,10 +194,10 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
 
       // 如果有 URL 參數，處理完後清空參數（使用 replace 避免影響瀏覽器歷史）
       if (hasParams) {
-        router.replace(`/vp/${videoId}`, { scroll: false });
+        router.replace(`/${locale}/vp/${videoId}`, { scroll: false });
       }
     }
-  }, [player, segments, initialTime, initialSegment, initialMode, router, videoId]);
+  }, [player, segments, initialTime, initialSegment, initialMode, router, videoId, locale]);
 
   // 處理頁面可見性變化和組件卸載
   useEffect(() => {
