@@ -17,24 +17,31 @@ import { ArrowLeft, Loader2, Share } from "lucide-react";
 
 // 4voKeMm3u1Y
 export default function VideoPlayerClient({ videoId }: { videoId: string }) {
-  const t = useTranslations('videoPlayer');
-  const tCommon = useTranslations('common');
+  const t = useTranslations("videoPlayer");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   // 從 URL 參數讀取初始狀態
-  const initialMode = searchParams.get('mode') === 'practice';
-  const initialSegment = searchParams.get('segment') ? parseInt(searchParams.get('segment')!) : 0;
-  const initialTime = searchParams.get('time') ? parseFloat(searchParams.get('time')!) : 0;
+  const initialMode = searchParams.get("mode") === "practice";
+  const initialSegment = searchParams.get("segment")
+    ? parseInt(searchParams.get("segment")!)
+    : 0;
+  const initialTime = searchParams.get("time")
+    ? parseFloat(searchParams.get("time")!)
+    : 0;
 
   const [currentTime, setCurrentTime] = useState(0);
   const [player, setPlayer] = useState<YouTubePlayerInterface | null>(null);
   const [isPracticeMode, setIsPracticeMode] = useState(initialMode);
-  const [currentSegmentIndex, setCurrentSegmentIndex] = useState(initialSegment);
+  const [currentSegmentIndex, setCurrentSegmentIndex] =
+    useState(initialSegment);
   const [showFeedback, setShowFeedback] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [externalPlayState, setExternalPlayState] = useState<boolean | null>(null);
+  const [externalPlayState, setExternalPlayState] = useState<boolean | null>(
+    null
+  );
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
 
   // Wake Lock for keeping screen awake during playback
@@ -60,7 +67,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
         wakeLockRef.current = wakeLock;
 
         // 監聽系統釋放事件（電池低、低電量模式等）
-        wakeLock.addEventListener('release', () => {
+        wakeLock.addEventListener("release", () => {
           wakeLockRef.current = null;
 
           // 如果仍在播放，嘗試重新請求（延遲避免立即失敗）
@@ -91,25 +98,31 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     setCurrentTime(time);
   }, []);
 
-  const handlePlayerStateChange = useCallback((state: number) => {
-    // YouTube 播放狀態: -1=未開始, 0=結束, 1=播放中, 2=暫停, 3=緩衝中, 5=已排隊
-    if (state === 1) {
-      setExternalPlayState(true);
-      requestWakeLock(); // 播放時啟用 wake lock
-    } else if (state === 2) {
-      setExternalPlayState(false);
-      releaseWakeLock(); // 暫停時釋放 wake lock
-    }
-  }, [requestWakeLock, releaseWakeLock]);
+  const handlePlayerStateChange = useCallback(
+    (state: number) => {
+      // YouTube 播放狀態: -1=未開始, 0=結束, 1=播放中, 2=暫停, 3=緩衝中, 5=已排隊
+      if (state === 1) {
+        setExternalPlayState(true);
+        requestWakeLock(); // 播放時啟用 wake lock
+      } else if (state === 2) {
+        setExternalPlayState(false);
+        releaseWakeLock(); // 暫停時釋放 wake lock
+      }
+    },
+    [requestWakeLock, releaseWakeLock]
+  );
 
-  const handleSegmentClick = useCallback((time: number) => {
-    if (player) {
-      player.seekTo(time);
-    }
-  }, [player]);
+  const handleSegmentClick = useCallback(
+    (time: number) => {
+      if (player) {
+        player.seekTo(time);
+      }
+    },
+    [player]
+  );
 
   const handlePreviousSegment = useCallback(() => {
-    setCurrentSegmentIndex(prev => {
+    setCurrentSegmentIndex((prev) => {
       if (prev > 0) {
         setShowFeedback(false);
         return prev - 1;
@@ -119,7 +132,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   }, []);
 
   const handleNextSegment = useCallback(() => {
-    setCurrentSegmentIndex(prev => {
+    setCurrentSegmentIndex((prev) => {
       const maxIndex = segments.length - 1;
       if (prev < maxIndex) {
         setShowFeedback(false);
@@ -129,12 +142,15 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     });
   }, [segments.length]);
 
-  const handlePlaybackRateChange = useCallback((rate: number) => {
-    setPlaybackRate(rate);
-    if (player) {
-      player.setPlaybackRate(rate);
-    }
-  }, [player]);
+  const handlePlaybackRateChange = useCallback(
+    (rate: number) => {
+      setPlaybackRate(rate);
+      if (player) {
+        player.setPlaybackRate(rate);
+      }
+    },
+    [player]
+  );
 
   // 生成分享連結
   const generateShareUrl = useCallback(() => {
@@ -142,11 +158,11 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     const params = new URLSearchParams();
 
     if (isPracticeMode) {
-      params.append('mode', 'practice');
-      params.append('segment', currentSegmentIndex.toString());
+      params.append("mode", "practice");
+      params.append("segment", currentSegmentIndex.toString());
     } else {
-      params.append('mode', 'watch');
-      params.append('time', Math.round(currentTime).toString());
+      params.append("mode", "watch");
+      params.append("time", Math.round(currentTime).toString());
     }
 
     return `${baseUrl}?${params.toString()}`;
@@ -165,10 +181,9 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
         setShowCopiedMessage(false);
       }, 3000);
     } catch (err) {
-      console.error('Failed to copy to clipboard:', err);
+      console.error("Failed to copy to clipboard:", err);
     }
   }, [generateShareUrl]);
-
 
   // 使用 ref 追蹤最新的播放狀態，避免 useEffect 重新運行
   const externalPlayStateRef = useRef(externalPlayState);
@@ -197,7 +212,16 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
         router.replace(`/${locale}/vp/${videoId}`, { scroll: false });
       }
     }
-  }, [player, segments, initialTime, initialSegment, initialMode, router, videoId, locale]);
+  }, [
+    player,
+    segments,
+    initialTime,
+    initialSegment,
+    initialMode,
+    router,
+    videoId,
+    locale,
+  ]);
 
   // 處理頁面可見性變化和組件卸載
   useEffect(() => {
@@ -234,15 +258,19 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
       {/* 返回按鈕 */}
       <div className="flex-shrink-0 max-w-7xl w-full mx-auto px-4 md:px-10 pt-4 pb-2">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push(`/${locale}`)}
           className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 text-sm md:text-base text-slate-300 hover:text-slate-100 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
-          <span>{tCommon('back')}</span>
+          <span>{tCommon("back")}</span>
         </button>
       </div>
 
-      <div className={`flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-4 px-4 md:px-10 pb-4 md:pb-10 ${isPracticeMode ? 'overflow-auto' : 'overflow-hidden'}`}>
+      <div
+        className={`flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-4 px-4 md:px-10 pb-4 md:pb-10 ${
+          isPracticeMode ? "overflow-auto" : "overflow-hidden"
+        }`}
+      >
         <div className="w-full md:w-1/2">
           <YouTubePlayer
             videoId={videoId}
@@ -261,7 +289,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                 }`}
                 onClick={() => setIsPracticeMode(false)}
               >
-                {t('watchMode')}
+                {t("watchMode")}
               </button>
               <button
                 className={`px-2 py-1 md:px-4 md:py-2 text-sm md:text-base rounded transition-colors ${
@@ -273,14 +301,16 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                   setIsPracticeMode(true);
                   // 根據當前時間計算對應的句子索引
                   const newIndex = segments.findIndex(
-                    segment => currentTime >= segment.startTime && currentTime < segment.endTime
+                    (segment) =>
+                      currentTime >= segment.startTime &&
+                      currentTime < segment.endTime
                   );
                   if (newIndex !== -1) {
                     setCurrentSegmentIndex(newIndex);
                   }
                 }}
               >
-                {t('practiceMode')}
+                {t("practiceMode")}
               </button>
             </div>
             {/* 分享按鈕 */}
@@ -288,20 +318,20 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
               <button
                 onClick={handleShare}
                 className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-4 md:py-2 text-sm md:text-base bg-slate-700 text-slate-300 hover:bg-slate-600 rounded transition-colors"
-                title={t('shareTitle')}
+                title={t("shareTitle")}
               >
                 <Share className="w-3 h-3 md:w-4 md:h-4" />
-                <span className="hidden md:inline">{t('share')}</span>
+                <span className="hidden md:inline">{t("share")}</span>
               </button>
               {showCopiedMessage && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1 bg-blue-600 text-white text-xs md:text-sm rounded whitespace-nowrap z-10">
-                  {t('linkCopied')}
+                  {t("linkCopied")}
                 </div>
               )}
             </div>
             <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
               <span className="text-slate-400 text-xs md:text-base">
-                {t('playbackSpeed')}:
+                {t("playbackSpeed")}:
               </span>
               <select
                 value={playbackRate}
