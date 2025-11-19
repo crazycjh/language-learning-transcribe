@@ -19,9 +19,10 @@ export async function getVideoList(): Promise<VideoList> {
   }
 }
 
-export async function getSrtContent(videoId: string): Promise<string> {
+export async function getSrtContent(videoId: string, lang?: string): Promise<string> {
   try {
-    const response = await fetch(`/api/srt/${videoId}`, {
+    const url = lang ? `/api/srt/${videoId}?lang=${lang}` : `/api/srt/${videoId}`;
+    const response = await fetch(url, {
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -35,6 +36,65 @@ export async function getSrtContent(videoId: string): Promise<string> {
   } catch (error) {
     console.error('Error fetching SRT:', error);
     throw error;
+  }
+}
+
+export async function getAvailableLanguages(videoId: string): Promise<string[]> {
+  try {
+    const response = await fetch(`/api/video/${videoId}/languages`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch languages: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.languages || [];
+  } catch (error) {
+    console.error('Error fetching languages:', error);
+    return ['default'];
+  }
+}
+
+export interface SummaryData {
+  videoId: string;
+  language: string;
+  overallSummary: string;
+  segmentSummaries: Array<{
+    segmentId: string;
+    topic: string;
+    summary: string;
+  }>;
+  metadata: {
+    aiService: string;
+    processingTime: number;
+    createdAt: string;
+    translatedFrom?: string;
+  };
+}
+
+export async function getSummary(videoId: string, lang?: string): Promise<SummaryData | null> {
+  try {
+    const url = lang 
+      ? `/api/video/${videoId}/summary?lang=${lang}` 
+      : `/api/video/${videoId}/summary`;
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+    if (!response.ok) {
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching summary:', error);
+    return null;
   }
 }
 

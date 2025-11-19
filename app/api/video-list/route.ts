@@ -8,7 +8,8 @@ export async function GET() {
     const startTime = Date.now();
     console.log('🔍 [API] 開始 fetch videolist:', new Date().toISOString());
 
-    const resp = await fetch(`${workerUrl}/videolist`, {
+    // 使用新的 RESTful API
+    const resp = await fetch(`${workerUrl}/api/videolist`, {
       cache: 'no-store'
     });
 

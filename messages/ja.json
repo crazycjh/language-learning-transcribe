@@ -29,7 +29,14 @@
     "share": "共有",
     "shareTitle": "現在位置を共有",
     "linkCopied": "リンクをコピーしました！",
-    "playbackSpeed": "再生速度"
+    "playbackSpeed": "再生速度",
+    "summary": "要約",
+    "loadingSummary": "読み込み中...",
+    "showTranslation": "翻訳表示",
+    "copied": "コピー済",
+    "loadingTranscript": "読み込み中...",
+    "jumpToTime": "再生",
+    "copy": "コピー"
   },
   "practice": {
     "title": "ディクテーション練習モード",

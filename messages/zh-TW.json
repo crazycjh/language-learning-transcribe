@@ -29,7 +29,14 @@
     "share": "分享",
     "shareTitle": "分享當前位置",
     "linkCopied": "已複製連結！",
-    "playbackSpeed": "播放速度"
+    "playbackSpeed": "播放速度",
+    "summary": "摘要",
+    "loadingSummary": "載入中...",
+    "showTranslation": "顯示翻譯",
+    "copied": "已複製",
+    "loadingTranscript": "載入逐字稿中...",
+    "jumpToTime": "跳轉播放",
+    "copy": "複製"
   },
   "practice": {
     "title": "聽打練習模式",

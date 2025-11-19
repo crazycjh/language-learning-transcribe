@@ -29,7 +29,14 @@
     "share": "Share",
     "shareTitle": "Share current position",
     "linkCopied": "Link copied!",
-    "playbackSpeed": "Speed"
+    "playbackSpeed": "Speed",
+    "summary": "Summary",
+    "loadingSummary": "Loading...",
+    "showTranslation": "Translation",
+    "copied": "Copied",
+    "loadingTranscript": "Loading...",
+    "jumpToTime": "Jump",
+    "copy": "Copy"
   },
   "practice": {
     "title": "Dictation Practice Mode",
