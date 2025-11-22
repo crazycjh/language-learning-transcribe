@@ -369,7 +369,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                         selectedLanguage === lang ? 'bg-slate-700 text-blue-400' : 'text-slate-300'
                       }`}
                     >
-                      {lang === 'default' ? '原文 (Default)' : lang.toUpperCase()}
+                      {lang === 'default' ? '原文' : lang.toUpperCase()}
                     </button>
                   ))}
                 </div>
@@ -457,6 +457,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
               onSegmentClick={handleSegmentClick}
               videoId={videoId}
               availableLanguages={availableLanguages}
+              summary={summary}
             />
           )}
         </div>

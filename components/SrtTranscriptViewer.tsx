@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Copy, Check, Loader2, Play, Languages } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Copy, Check, Loader2, Play, Languages, BookOpen } from "lucide-react";
 import { parseSRT, type Segment } from "@/lib/srt-utils";
-import { getSrtContent } from "@/lib/video-service";
+import { getSrtContent, getSegments } from "@/lib/video-service";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
@@ -14,6 +15,7 @@ interface SrtTranscriptViewerProps {
   onSegmentClick: (time: number) => void;
   videoId: string;
   availableLanguages: string[];
+  summary?: any;
 }
 
 export function SrtTranscriptViewer({
@@ -21,7 +23,8 @@ export function SrtTranscriptViewer({
   currentTime,
   onSegmentClick,
   videoId,
-  availableLanguages
+  availableLanguages,
+  summary
 }: SrtTranscriptViewerProps) {
   const t = useTranslations("videoPlayer");
   const [segments, setSegments] = useState<Segment[]>([]);
@@ -30,6 +33,7 @@ export function SrtTranscriptViewer({
   const [showTranslation, setShowTranslation] = useState(false);
   const [translationLanguage, setTranslationLanguage] = useState<string>('zh');
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const segmentRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
@@ -39,6 +43,20 @@ export function SrtTranscriptViewer({
     queryFn: () => getSrtContent(videoId, translationLanguage),
     enabled: showTranslation && translationLanguage !== 'default',
   });
+
+  // 獲取分段資訊（始終使用 default 語言的分段）
+  const { data: segmentsData } = useQuery({
+    queryKey: ["segments", videoId],
+    queryFn: () => getSegments(videoId),
+  });
+
+  // Debug: 檢查 segments 資料
+  useEffect(() => {
+    if (segmentsData) {
+      console.log('Segments data:', segmentsData);
+      console.log('Total segments:', segments.length);
+    }
+  }, [segmentsData, segments.length]);
 
   // 解析翻譯字幕
   const [translationSegments, setTranslationSegments] = useState<Segment[]>([]);
@@ -101,17 +119,31 @@ export function SrtTranscriptViewer({
   // 點擊外部關閉語言選單
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (showLanguageMenu) {
-        const target = event.target as HTMLElement;
-        if (!target.closest('.translation-language-menu')) {
-          setShowLanguageMenu(false);
-        }
+      const target = event.target as HTMLElement;
+      
+      if (showLanguageMenu && !target.closest('.translation-language-menu')) {
+        setShowLanguageMenu(false);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showLanguageMenu]);
+
+  // 監聽滾動，關閉 Popover
+  useEffect(() => {
+    if (!openPopoverId) return;
+
+    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      setOpenPopoverId(null);
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll);
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+  }, [openPopoverId]);
   
   // 載入狀態
   if (!srtContent || segments.length === 0) {
@@ -174,22 +206,87 @@ export function SrtTranscriptViewer({
       </div>
 
       {/* 字幕列表 */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 relative">
         <ScrollArea ref={scrollAreaRef} className="h-full pt-2 md:pt-4 px-2 md:px-4 space-y-1 md:space-y-4 border border-slate-800 bg-slate-950/50 rounded-md p-2 md:p-4">
         {segments.map((segment) => {
           // 找到對應的翻譯
           const translation = translationSegments.find(t => t.id === segment.id);
           
+          // 找到該字幕屬於哪個章節（segment.id 是 SRT 的序號，從 1 開始）
+          const chapter = segmentsData?.segments.find(
+            ch => segment.id >= ch.startIndex && segment.id <= ch.endIndex
+          );
+          const chapterIndex = segmentsData?.segments.findIndex(
+            ch => segment.id >= ch.startIndex && segment.id <= ch.endIndex
+          );
+          
+          // 是否是章節的第一句（使用 segment.id 而不是 array index）
+          const isChapterStart = chapter && segment.id === chapter.startIndex;
+          
+          // 交替背景色 - 使用更明顯的對比
+          const bgColor = chapterIndex !== undefined && chapterIndex >= 0
+            ? (chapterIndex % 2 === 0 ? 'bg-blue-900/20' : 'bg-slate-800/30')
+            : 'bg-slate-800/20';
+          
+          // 左側 bar 顏色（奇偶不同）
+          const barColor = chapterIndex !== undefined && chapterIndex >= 0
+            ? (chapterIndex % 2 === 0 ? 'bg-blue-500/60' : 'bg-cyan-500/60')
+            : '';
+          
           return (
           <div
             key={segment.id}
             ref={(el) => { segmentRefs.current[segment.id] = el; }}
-            className={`segment p-1.5 md:p-2 rounded transition-colors
+            className={`segment p-1.5 md:p-2 rounded transition-colors relative
               ${activeSegmentId === segment.id 
-                ? 'bg-slate-800 dark:bg-slate-900' 
-                : 'hover:bg-slate-800/50'}`}
+                ? 'bg-yellow-900/30 border-l-2 border-yellow-500' 
+                : `${bgColor} hover:bg-slate-700/50`}`}
           >
-            <div className="flex items-start justify-between gap-2">
+            {/* 章節左側 bar - 覆蓋整個章節 */}
+            {chapter && (
+              <div 
+                className={`absolute left-0 top-0 bottom-0 w-1 ${barColor} rounded-l`}
+              >
+                {/* 只在章節開始顯示圖示 */}
+                {isChapterStart && (
+                  <Popover 
+                    open={openPopoverId === chapter.id}
+                    onOpenChange={(open) => setOpenPopoverId(open ? chapter.id : null)}
+                  >
+                    <PopoverTrigger asChild>
+                      <button className="absolute left-1 top-1/2 -translate-y-1/2 p-0 border-0 bg-transparent">
+                        <BookOpen 
+                          className="w-4 h-4 text-blue-400 cursor-pointer hover:text-blue-300 transition-colors" 
+                        />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent 
+                      side="right" 
+                      align="start"
+                      className="w-80 p-4 bg-slate-900 border-slate-600"
+                    >
+                      <div className="text-base font-semibold text-slate-200 mb-2">
+                        {chapter.topic}
+                      </div>
+                      <div className="text-sm text-slate-400 mb-3">
+                        {chapter.timeStart} - {chapter.timeEnd}
+                      </div>
+                      {(() => {
+                        const chapterSummary = summary?.segmentSummaries?.find(
+                          (s: any) => s.segmentId === chapter.id
+                        );
+                        return chapterSummary && (
+                          <div className="text-sm text-slate-300 leading-relaxed">
+                            {chapterSummary.summary}
+                          </div>
+                        );
+                      })()}
+                    </PopoverContent>
+                  </Popover>
+                )}
+              </div>
+            )}
+            <div className={`flex items-start justify-between gap-2 ${chapter ? 'pl-6' : ''}`}>
               <div className="flex-1 space-y-1">
                 <div className="text-sm md:text-base select-text cursor-text text-slate-100">
                   {segment.text}

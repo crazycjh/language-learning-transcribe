@@ -76,6 +76,26 @@ export interface SummaryData {
   };
 }
 
+export interface SegmentsData {
+  videoId: string;
+  language: string;
+  segments: Array<{
+    id: string;
+    topic: string;
+    startIndex: number;
+    endIndex: number;
+    timeStart: string;
+    timeEnd: string;
+  }>;
+  metadata: {
+    totalSegments: number;
+    totalEntries: number;
+    averageSegmentLength: number;
+    createdAt: string;
+    translatedFrom?: string;
+  };
+}
+
 export async function getSummary(videoId: string, lang?: string): Promise<SummaryData | null> {
   try {
     const url = lang 
@@ -94,6 +114,28 @@ export async function getSummary(videoId: string, lang?: string): Promise<Summar
     return await response.json();
   } catch (error) {
     console.error('Error fetching summary:', error);
+    return null;
+  }
+}
+
+export async function getSegments(videoId: string, lang?: string): Promise<SegmentsData | null> {
+  try {
+    const url = lang 
+      ? `/api/video/${videoId}/segments?lang=${lang}` 
+      : `/api/video/${videoId}/segments`;
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+    if (!response.ok) {
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching segments:', error);
     return null;
   }
 }
