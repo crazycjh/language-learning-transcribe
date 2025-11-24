@@ -106,8 +106,10 @@ export function BlanksFillPractice({
   const [isLooping, setIsLooping] = useState(false);
   const [isLoopWaiting, setIsLoopWaiting] = useState(false);
   const [loopCountdown, setLoopCountdown] = useState(0);
+  const [autoAdvance, setAutoAdvance] = useState(true); // 自動跳到下一個輸入框
   const loopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTimeRef = useRef(currentTime);
+  const inputRefs = useRef<Map<string, HTMLInputElement>>(new Map());
 
   const currentBlanksSegment = blanksSegments[currentSegmentIndex];
 
@@ -408,6 +410,8 @@ export function BlanksFillPractice({
   const updateBlankInput = (blankId: string, value: string) => {
     if (!currentBlanksSegment) return;
     
+    const currentBlankIndex = currentBlanksSegment.blanks.findIndex(b => b.id === blankId);
+    
     const updatedBlanks = currentBlanksSegment.blanks.map(blank => {
       if (blank.id === blankId) {
         const userInputCleaned = value.toLowerCase().trim();
@@ -426,6 +430,25 @@ export function BlanksFillPractice({
       blanks: updatedBlanks
     };
     setBlanksSegments(updatedSegments);
+    
+    // 如果啟用自動跳轉且當前輸入正確，跳到下一個空格
+    if (autoAdvance && currentBlankIndex !== -1) {
+      const currentBlank = updatedBlanks[currentBlankIndex];
+      if (currentBlank.isCorrect && currentBlankIndex < updatedBlanks.length - 1) {
+        // 找到下一個未填寫或填寫錯誤的空格
+        const nextBlankIndex = updatedBlanks.findIndex((blank, idx) => 
+          idx > currentBlankIndex && (!blank.userInput || !blank.isCorrect)
+        );
+        
+        if (nextBlankIndex !== -1) {
+          const nextBlankId = updatedBlanks[nextBlankIndex].id;
+          const nextInput = inputRefs.current.get(nextBlankId);
+          if (nextInput) {
+            setTimeout(() => nextInput.focus(), 50);
+          }
+        }
+      }
+    }
   };
 
   // 提交答案
@@ -651,6 +674,22 @@ export function BlanksFillPractice({
                 {t('loopPlayback')}
               </span>
             </label>
+            
+            {/* 自動跳轉 checkbox - 只在初級中級模式顯示 */}
+            {difficulty !== BlanksDifficulty.ADVANCED && (
+              <label className="flex items-center justify-center gap-1 cursor-pointer px-3 py-2 md:px-3 md:py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors flex-1 md:flex-none">
+                <input
+                  type="checkbox"
+                  checked={autoAdvance}
+                  onChange={(e) => setAutoAdvance(e.target.checked)}
+                  className="w-3 h-3 md:w-4 md:h-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <SkipForward className={`w-3 h-3 md:w-4 md:h-4 ${autoAdvance ? 'text-blue-400' : 'text-slate-400'}`} />
+                <span className={`hidden md:inline text-xs md:text-sm ${autoAdvance ? 'text-blue-400' : 'text-slate-400'}`}>
+                  {t('autoAdvance')}
+                </span>
+              </label>
+            )}
 
             <button
               onClick={isPlaying ? pauseSegment : (isLoopWaiting ? skipLoopWait : playCurrentSegment)}
@@ -744,6 +783,13 @@ export function BlanksFillPractice({
                         <span key={`${index}-${blank.id}`} className="inline-block">
                           {leadingPunct && <span className="text-slate-300">{leadingPunct}</span>}
                           <input
+                            ref={(el) => {
+                              if (el) {
+                                inputRefs.current.set(blank.id, el);
+                              } else {
+                                inputRefs.current.delete(blank.id);
+                              }
+                            }}
                             type="text"
                             value={blank.userInput}
                             onChange={(e) => updateBlankInput(blank.id, e.target.value)}

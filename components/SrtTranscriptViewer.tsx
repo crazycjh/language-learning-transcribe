@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Copy, Check, Loader2, Play, Languages, BookOpen } from "lucide-react";
 import { parseSRT, type Segment } from "@/lib/srt-utils";
-import { getSrtContent, getSegments } from "@/lib/video-service";
+import { getSrtContent, getSegments, type SummaryData } from "@/lib/video-service";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
@@ -15,7 +15,7 @@ interface SrtTranscriptViewerProps {
   onSegmentClick: (time: number) => void;
   videoId: string;
   availableLanguages: string[];
-  summary?: any;
+  summary?: SummaryData | null;
 }
 
 export function SrtTranscriptViewer({
@@ -273,7 +273,7 @@ export function SrtTranscriptViewer({
                       </div>
                       {(() => {
                         const chapterSummary = summary?.segmentSummaries?.find(
-                          (s: any) => s.segmentId === chapter.id
+                          (s) => s.segmentId === chapter.id
                         );
                         return chapterSummary && (
                           <div className="text-sm text-slate-300 leading-relaxed">

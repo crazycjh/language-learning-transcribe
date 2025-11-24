@@ -299,7 +299,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
 
       <div
         className={`flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-2 md:gap-4 px-2 md:px-10 pb-2 md:pb-10 ${
-          isPracticeMode ? "overflow-auto" : "overflow-hidden"
+          isPracticeMode ? "overflow-auto scrollbar-hide" : "overflow-hidden"
         }`}
       >
         <div className={`w-full md:w-1/2 ${!isPracticeMode ? "md:overflow-y-auto scrollbar-hide" : ""}`}>

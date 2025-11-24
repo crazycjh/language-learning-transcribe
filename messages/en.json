@@ -69,6 +69,7 @@
     "accuracyNote": "* Accuracy: Correct blanks ÷ Total blanks × 100%",
     "retry": "Retry",
     "listenAgain": "Listen Again",
+    "autoAdvance": "Auto Next",
     "loadingContent": "Loading practice content...",
     "allComplete": "Practice Complete!",
     "congratulations": "Congratulations! You've completed all sentences"

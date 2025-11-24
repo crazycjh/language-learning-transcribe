@@ -69,6 +69,7 @@
     "accuracyNote": "* 準確度計算：正確填寫的空格數 ÷ 總空格數 × 100%",
     "retry": "重新嘗試",
     "listenAgain": "再聽一次",
+    "autoAdvance": "自動跳轉",
     "loadingContent": "載入練習內容中...",
     "allComplete": "練習完成！",
     "congratulations": "恭喜您完成了所有句子的練習"

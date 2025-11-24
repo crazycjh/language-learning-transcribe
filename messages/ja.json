@@ -69,6 +69,7 @@
     "accuracyNote": "* 正確度計算：正解した空欄数 ÷ 空欄総数 × 100%",
     "retry": "再挑戦",
     "listenAgain": "もう一度聞く",
+    "autoAdvance": "自動次へ",
     "loadingContent": "練習内容を読み込み中...",
     "allComplete": "練習完了！",
     "congratulations": "おめでとうございます！すべての文の練習が完了しました"
