@@ -76,6 +76,13 @@ export function SrtTranscriptViewer({
       setSegments(parsed);
     }
   }, [srtContent]);
+
+  // 獲取章節摘要的輔助函數
+  const getChapterSummary = (chapterId: string) => {
+    return summary?.segmentSummaries?.find(
+      (s) => s.segmentId === chapterId
+    );
+  };
   
   // 智慧滾動函數
   const scrollToSegment = (segmentId: number) => {
@@ -271,16 +278,11 @@ export function SrtTranscriptViewer({
                       <div className="text-sm text-slate-400 mb-3">
                         {chapter.timeStart} - {chapter.timeEnd}
                       </div>
-                      {(() => {
-                        const chapterSummary = summary?.segmentSummaries?.find(
-                          (s) => s.segmentId === chapter.id
-                        );
-                        return chapterSummary && (
-                          <div className="text-sm text-slate-300 leading-relaxed">
-                            {chapterSummary.summary}
-                          </div>
-                        );
-                      })()}
+                      {getChapterSummary(chapter.id) && (
+                        <div className="text-sm text-slate-300 leading-relaxed">
+                          {getChapterSummary(chapter.id)!.summary}
+                        </div>
+                      )}
                     </PopoverContent>
                   </Popover>
                 )}
