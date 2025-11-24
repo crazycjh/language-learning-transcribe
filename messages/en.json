@@ -36,7 +36,9 @@
     "copied": "Copied",
     "loadingTranscript": "Loading...",
     "jumpToTime": "Jump",
-    "copy": "Copy"
+    "copy": "Copy",
+    "original": "Original",
+    "selectLanguage": "Select Language"
   },
   "practice": {
     "title": "Dictation Practice Mode",

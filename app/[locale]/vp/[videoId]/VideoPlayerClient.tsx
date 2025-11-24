@@ -349,11 +349,11 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
               <button
                 onClick={() => setShowLanguageMenu(!showLanguageMenu)}
                 className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-4 md:py-2 text-sm md:text-base bg-slate-700 text-slate-300 hover:bg-slate-600 rounded transition-colors"
-                title="選擇語言"
+                title={t("selectLanguage")}
               >
                 <Languages className="w-3 h-3 md:w-4 md:h-4" />
                 <span className="hidden md:inline">
-                  {selectedLanguage === 'default' ? '原文' : selectedLanguage.toUpperCase()}
+                  {selectedLanguage === 'default' ? t("original") : selectedLanguage.toUpperCase()}
                 </span>
               </button>
               {showLanguageMenu && (
@@ -369,7 +369,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                         selectedLanguage === lang ? 'bg-slate-700 text-blue-400' : 'text-slate-300'
                       }`}
                     >
-                      {lang === 'default' ? '原文' : lang.toUpperCase()}
+                      {lang === 'default' ? t("original") : lang.toUpperCase()}
                     </button>
                   ))}
                 </div>

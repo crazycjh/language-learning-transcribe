@@ -36,7 +36,9 @@
     "copied": "已複製",
     "loadingTranscript": "載入逐字稿中...",
     "jumpToTime": "跳轉播放",
-    "copy": "複製"
+    "copy": "複製",
+    "original": "原文",
+    "selectLanguage": "選擇語言"
   },
   "practice": {
     "title": "聽打練習模式",

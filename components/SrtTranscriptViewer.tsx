@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Check, Loader2, Play, Languages, BookOpen } from "lucide-react";
 import { parseSRT, type Segment } from "@/lib/srt-utils";
-import { getSrtContent, getSegments, type SummaryData } from "@/lib/video-service";
+import { getSrtContent, getSegments, getSummary, type SummaryData, type SegmentsData } from "@/lib/video-service";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
@@ -34,6 +35,8 @@ export function SrtTranscriptViewer({
   const [translationLanguage, setTranslationLanguage] = useState<string>('zh');
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
+  const [activeTabLanguage, setActiveTabLanguage] = useState<string>(availableLanguages[0]);
+  const [loadedLanguages, setLoadedLanguages] = useState<Set<string>>(new Set([availableLanguages[0]]));
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const segmentRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
@@ -44,11 +47,33 @@ export function SrtTranscriptViewer({
     enabled: showTranslation && translationLanguage !== 'default',
   });
 
-  // 獲取分段資訊（始終使用 default 語言的分段）
+  // 獲取分段資訊（使用 default 語言）
   const { data: segmentsData } = useQuery({
-    queryKey: ["segments", videoId],
+    queryKey: ["segments", videoId, 'default'],
     queryFn: () => getSegments(videoId),
   });
+
+  // 為每個語言創建條件查詢（只在需要時才啟用）
+  const segmentSummaryQueries = availableLanguages.map(lang => ({
+    segments: useQuery({
+      queryKey: ["segments", videoId, lang],
+      queryFn: () => getSegments(videoId, lang === 'default' ? undefined : lang),
+      enabled: loadedLanguages.has(lang),
+    }),
+    summary: useQuery({
+      queryKey: ["summary", videoId, lang],
+      queryFn: () => getSummary(videoId, lang === 'default' ? undefined : lang),
+      enabled: loadedLanguages.has(lang),
+    })
+  }));
+
+  // 當切換 Tab 時，標記該語言為已載入
+  const handleTabChange = (lang: string) => {
+    setActiveTabLanguage(lang);
+    if (!loadedLanguages.has(lang)) {
+      setLoadedLanguages(prev => new Set([...prev, lang]));
+    }
+  };
 
   // Debug: 檢查 segments 資料
   useEffect(() => {
@@ -77,11 +102,18 @@ export function SrtTranscriptViewer({
     }
   }, [srtContent]);
 
-  // 獲取章節摘要的輔助函數
-  const getChapterSummary = (chapterId: string) => {
-    return summary?.segmentSummaries?.find(
-      (s) => s.segmentId === chapterId
-    );
+  // 獲取特定語言的分段數據
+  const getSegmentsDataForLanguage = (lang: string): SegmentsData | null => {
+    const index = availableLanguages.indexOf(lang);
+    if (index === -1) return null;
+    return segmentSummaryQueries[index]?.segments.data || null;
+  };
+
+  // 獲取特定語言的摘要數據
+  const getSummaryDataForLanguage = (lang: string): SummaryData | null => {
+    const index = availableLanguages.indexOf(lang);
+    if (index === -1) return null;
+    return segmentSummaryQueries[index]?.summary.data || null;
   };
   
   // 智慧滾動函數
@@ -270,19 +302,56 @@ export function SrtTranscriptViewer({
                     <PopoverContent 
                       side="right" 
                       align="start"
-                      className="w-80 p-4 bg-slate-900 border-slate-600"
+                      className="w-96 p-0 bg-slate-900 border-slate-600"
                     >
-                      <div className="text-base font-semibold text-slate-200 mb-2">
-                        {chapter.topic}
-                      </div>
-                      <div className="text-sm text-slate-400 mb-3">
-                        {chapter.timeStart} - {chapter.timeEnd}
-                      </div>
-                      {getChapterSummary(chapter.id) && (
-                        <div className="text-sm text-slate-300 leading-relaxed">
-                          {getChapterSummary(chapter.id)!.summary}
-                        </div>
-                      )}
+                      <Tabs 
+                        defaultValue={availableLanguages[0]} 
+                        className="w-full"
+                        onValueChange={handleTabChange}
+                      >
+                        <TabsList className="w-full justify-start rounded-none border-b border-slate-700 bg-slate-900 p-0">
+                          {availableLanguages.map((lang) => (
+                            <TabsTrigger 
+                              key={lang}
+                              value={lang}
+                              className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-slate-800 data-[state=active]:text-blue-400 text-slate-400 hover:text-slate-200 px-4 py-2 text-xs font-medium"
+                            >
+                              {lang === 'default' ? t('original') : lang.toUpperCase()}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                        {availableLanguages.map((lang) => {
+                          const langSegmentsData = getSegmentsDataForLanguage(lang);
+                          const langSummaryData = getSummaryDataForLanguage(lang);
+                          const langChapter = langSegmentsData?.segments.find(
+                            ch => segment.id >= ch.startIndex && segment.id <= ch.endIndex
+                          );
+                          const langSegmentSummary = langSummaryData?.segmentSummaries?.find(
+                            s => s.segmentId === langChapter?.id
+                          );
+                          
+                          return (
+                            <TabsContent key={lang} value={lang} className="p-4 m-0">
+                              <div className="text-base font-semibold text-slate-200 mb-2">
+                                {langChapter?.topic || chapter.topic}
+                              </div>
+                              <div className="text-sm text-slate-400 mb-3">
+                                {langChapter?.timeStart || chapter.timeStart} - {langChapter?.timeEnd || chapter.timeEnd}
+                              </div>
+                              {langSegmentSummary && (
+                                <div className="text-sm text-slate-300 leading-relaxed">
+                                  {langSegmentSummary.summary}
+                                </div>
+                              )}
+                              {!langSegmentSummary && (
+                                <div className="text-sm text-slate-500 italic">
+                                  {t('loadingSummary')}
+                                </div>
+                              )}
+                            </TabsContent>
+                          );
+                        })}
+                      </Tabs>
                     </PopoverContent>
                   </Popover>
                 )}
