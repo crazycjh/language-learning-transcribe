@@ -13,6 +13,7 @@ import { BlanksFillPractice } from "@/components/BlanksFillPractice";
 import { SentenceDisplay } from "@/components/SentenceDisplay";
 import { parseSRT } from "@/lib/srt-utils";
 import { getSrtContent, getAvailableLanguages, getSummary } from "@/lib/video-service";
+import { getLanguageDisplayName } from "@/lib/utils";
 import { ArrowLeft, Loader2, Share, Languages } from "lucide-react";
 import { VideoSummary } from "@/components/VideoSummary";
 
@@ -353,7 +354,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
               >
                 <Languages className="w-3 h-3 md:w-4 md:h-4" />
                 <span className="hidden md:inline">
-                  {selectedLanguage === 'default' ? t("original") : selectedLanguage.toUpperCase()}
+                  {getLanguageDisplayName(selectedLanguage, t("original"))}
                 </span>
               </button>
               {showLanguageMenu && (
@@ -369,7 +370,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                         selectedLanguage === lang ? 'bg-slate-700 text-blue-400' : 'text-slate-300'
                       }`}
                     >
-                      {lang === 'default' ? t("original") : lang.toUpperCase()}
+                      {getLanguageDisplayName(lang, t("original"))}
                     </button>
                   ))}
                 </div>
@@ -452,12 +453,12 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
             />
           ) : (
             <SrtTranscriptViewer
+              key={videoId}
               srtContent={srtContent}
               currentTime={currentTime}
               onSegmentClick={handleSegmentClick}
               videoId={videoId}
               availableLanguages={availableLanguages}
-              summary={summary}
             />
           )}
         </div>

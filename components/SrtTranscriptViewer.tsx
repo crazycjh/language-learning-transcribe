@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Check, Loader2, Play, Languages, BookOpen } from "lucide-react";
 import { parseSRT, type Segment } from "@/lib/srt-utils";
-import { getSrtContent, getSegments, getSummary, type SummaryData, type SegmentsData } from "@/lib/video-service";
+import { getSrtContent, getSegments, getSummary, type SummaryData } from "@/lib/video-service";
+import { getLanguageDisplayName } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
@@ -16,7 +16,6 @@ interface SrtTranscriptViewerProps {
   onSegmentClick: (time: number) => void;
   videoId: string;
   availableLanguages: string[];
-  summary?: SummaryData | null;
 }
 
 export function SrtTranscriptViewer({
@@ -24,8 +23,7 @@ export function SrtTranscriptViewer({
   currentTime,
   onSegmentClick,
   videoId,
-  availableLanguages,
-  summary
+  availableLanguages
 }: SrtTranscriptViewerProps) {
   const t = useTranslations("videoPlayer");
   const [segments, setSegments] = useState<Segment[]>([]);
@@ -35,8 +33,7 @@ export function SrtTranscriptViewer({
   const [translationLanguage, setTranslationLanguage] = useState<string>('zh');
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
-  const [activeTabLanguage, setActiveTabLanguage] = useState<string>(availableLanguages[0]);
-  const [loadedLanguages, setLoadedLanguages] = useState<Set<string>>(new Set([availableLanguages[0]]));
+  const [chapterSummaryLanguage, setChapterSummaryLanguage] = useState<string>('default');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const segmentRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
@@ -47,33 +44,17 @@ export function SrtTranscriptViewer({
     enabled: showTranslation && translationLanguage !== 'default',
   });
 
-  // 獲取分段資訊（使用 default 語言）
+  // 獲取分段資訊（始終使用 default 語言的分段）
   const { data: segmentsData } = useQuery({
-    queryKey: ["segments", videoId, 'default'],
+    queryKey: ["segments", videoId],
     queryFn: () => getSegments(videoId),
   });
 
-  // 為每個語言創建條件查詢（只在需要時才啟用）
-  const segmentSummaryQueries = availableLanguages.map(lang => ({
-    segments: useQuery({
-      queryKey: ["segments", videoId, lang],
-      queryFn: () => getSegments(videoId, lang === 'default' ? undefined : lang),
-      enabled: loadedLanguages.has(lang),
-    }),
-    summary: useQuery({
-      queryKey: ["summary", videoId, lang],
-      queryFn: () => getSummary(videoId, lang === 'default' ? undefined : lang),
-      enabled: loadedLanguages.has(lang),
-    })
-  }));
-
-  // 當切換 Tab 時，標記該語言為已載入
-  const handleTabChange = (lang: string) => {
-    setActiveTabLanguage(lang);
-    if (!loadedLanguages.has(lang)) {
-      setLoadedLanguages(prev => new Set([...prev, lang]));
-    }
-  };
+  // 獲取章節摘要（獨立的語言選擇）
+  const { data: chapterSummary } = useQuery({
+    queryKey: ["chapter-summary", videoId, chapterSummaryLanguage],
+    queryFn: () => getSummary(videoId, chapterSummaryLanguage === 'default' ? undefined : chapterSummaryLanguage),
+  });
 
   // Debug: 檢查 segments 資料
   useEffect(() => {
@@ -102,20 +83,13 @@ export function SrtTranscriptViewer({
     }
   }, [srtContent]);
 
-  // 獲取特定語言的分段數據
-  const getSegmentsDataForLanguage = (lang: string): SegmentsData | null => {
-    const index = availableLanguages.indexOf(lang);
-    if (index === -1) return null;
-    return segmentSummaryQueries[index]?.segments.data || null;
+  // 獲取章節摘要的輔助函數（使用獨立的 chapterSummary）
+  const getChapterSummary = (chapterId: string) => {
+    return chapterSummary?.segmentSummaries?.find(
+      (s) => s.segmentId === chapterId
+    );
   };
 
-  // 獲取特定語言的摘要數據
-  const getSummaryDataForLanguage = (lang: string): SummaryData | null => {
-    const index = availableLanguages.indexOf(lang);
-    if (index === -1) return null;
-    return segmentSummaryQueries[index]?.summary.data || null;
-  };
-  
   // 智慧滾動函數
   const scrollToSegment = (segmentId: number) => {
     const segmentElement = segmentRefs.current[segmentId];
@@ -220,7 +194,7 @@ export function SrtTranscriptViewer({
               className="flex items-center gap-0.5 md:gap-1 px-1.5 py-0.5 md:px-2 md:py-1 text-xs bg-slate-700 text-slate-300 hover:bg-slate-600 rounded transition-colors"
             >
               <Languages className="w-3 h-3" />
-              <span>{translationLanguage.toUpperCase()}</span>
+              <span>{getLanguageDisplayName(translationLanguage, t('original'))}</span>
             </button>
             {showLanguageMenu && (
               <div className="absolute top-full left-0 mt-1 bg-slate-800 border border-slate-700 rounded shadow-lg z-20 min-w-[80px]">
@@ -235,7 +209,7 @@ export function SrtTranscriptViewer({
                       translationLanguage === lang ? 'bg-slate-700 text-blue-400' : 'text-slate-300'
                     }`}
                   >
-                    {lang.toUpperCase()}
+                    {getLanguageDisplayName(lang, t('original'))}
                   </button>
                 ))}
               </div>
@@ -302,63 +276,50 @@ export function SrtTranscriptViewer({
                     <PopoverContent 
                       side="right" 
                       align="start"
-                      className="w-96 p-0 bg-slate-900 border-slate-600"
+                      className="w-80 bg-slate-900 border-slate-600 p-0"
                     >
-                      <Tabs 
-                        defaultValue={availableLanguages[0]} 
-                        className="w-full"
-                        onValueChange={handleTabChange}
-                      >
-                        <TabsList className="w-full justify-start rounded-none border-b border-slate-700 bg-slate-900 p-0">
+                      {/* 語言選擇器 */}
+                      <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
+                        <span className="text-xs text-slate-400">{t('chapterSummary')}</span>
+                        <select
+                          value={chapterSummaryLanguage}
+                          onChange={(e) => setChapterSummaryLanguage(e.target.value)}
+                          className="text-xs px-2 py-1 bg-slate-800 text-slate-300 border border-slate-600 rounded hover:bg-slate-700 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           {availableLanguages.map((lang) => (
-                            <TabsTrigger 
-                              key={lang}
-                              value={lang}
-                              className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:bg-slate-800 data-[state=active]:text-blue-400 text-slate-400 hover:text-slate-200 px-4 py-2 text-xs font-medium"
-                            >
-                              {lang === 'default' ? t('original') : lang.toUpperCase()}
-                            </TabsTrigger>
+                            <option key={lang} value={lang}>
+                              {getLanguageDisplayName(lang, t('original'))}
+                            </option>
                           ))}
-                        </TabsList>
-                        {availableLanguages.map((lang) => {
-                          const langSegmentsData = getSegmentsDataForLanguage(lang);
-                          const langSummaryData = getSummaryDataForLanguage(lang);
-                          const langChapter = langSegmentsData?.segments.find(
-                            ch => segment.id >= ch.startIndex && segment.id <= ch.endIndex
-                          );
-                          const langSegmentSummary = langSummaryData?.segmentSummaries?.find(
-                            s => s.segmentId === langChapter?.id
-                          );
-                          
-                          return (
-                            <TabsContent key={lang} value={lang} className="p-4 m-0">
-                              <div className="text-base font-semibold text-slate-200 mb-2">
-                                {langChapter?.topic || chapter.topic}
-                              </div>
-                              <div className="text-sm text-slate-400 mb-3">
-                                {langChapter?.timeStart || chapter.timeStart} - {langChapter?.timeEnd || chapter.timeEnd}
-                              </div>
-                              {langSegmentSummary && (
-                                <div className="text-sm text-slate-300 leading-relaxed">
-                                  {langSegmentSummary.summary}
-                                </div>
-                              )}
-                              {!langSegmentSummary && (
-                                <div className="text-sm text-slate-500 italic">
-                                  {t('loadingSummary')}
-                                </div>
-                              )}
-                            </TabsContent>
-                          );
-                        })}
-                      </Tabs>
+                        </select>
+                      </div>
+                      
+                      {/* 章節內容 */}
+                      <div className="p-4">
+                        <div className="text-base font-semibold text-slate-200 mb-2">
+                          {chapter.topic}
+                        </div>
+                        <div className="text-sm text-slate-400 mb-3">
+                          {chapter.timeStart} - {chapter.timeEnd}
+                        </div>
+                        {getChapterSummary(chapter.id) ? (
+                          <div className="text-sm text-slate-300 leading-relaxed">
+                            {getChapterSummary(chapter.id)!.summary}
+                          </div>
+                        ) : (
+                          <div className="text-sm text-slate-500 italic">
+                            {t('loadingSummary')}
+                          </div>
+                        )}
+                      </div>
                     </PopoverContent>
                   </Popover>
                 )}
               </div>
             )}
-            <div className={`flex items-start justify-between gap-2 ${chapter ? 'pl-6' : ''}`}>
-              <div className="flex-1 space-y-1">
+            <div className={`flex items-stretch justify-between gap-2 ${chapter ? 'pl-6' : ''}`}>
+              <div className="flex-1 space-y-1 flex flex-col justify-center">
                 <div className="text-sm md:text-base select-text cursor-text text-slate-100">
                   {segment.text}
                 </div>
@@ -368,10 +329,9 @@ export function SrtTranscriptViewer({
                   </div>
                 )}
               </div>
-              <div className="relative flex-shrink-0 flex items-center gap-1">
-                {/* 播放按鈕 */}
+              <div className="relative flex-shrink-0 flex items-stretch gap-1 self-stretch">
                 <button
-                  className="p-1 rounded hover:bg-slate-700"
+                  className="flex items-center justify-center px-3 rounded hover:bg-slate-700"
                   title={t("jumpToTime")}
                   onClick={() => onSegmentClick(segment.startTime)}
                   tabIndex={0}
@@ -379,9 +339,8 @@ export function SrtTranscriptViewer({
                 >
                   <Play className="h-4 w-4 text-slate-400 hover:text-slate-100" />
                 </button>
-                {/* 複製按鈕 */}
                 <button
-                  className="p-1 rounded hover:bg-slate-700"
+                  className="flex items-center justify-center px-3 rounded hover:bg-slate-700"
                   title={t("copy")}
                   onClick={async e => {
                     e.stopPropagation();

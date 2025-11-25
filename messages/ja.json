@@ -38,7 +38,8 @@
     "jumpToTime": "再生",
     "copy": "コピー",
     "original": "原文",
-    "selectLanguage": "言語を選択"
+    "selectLanguage": "言語を選択",
+    "chapterSummary": "チャプター要約"
   },
   "practice": {
     "title": "ディクテーション練習モード",

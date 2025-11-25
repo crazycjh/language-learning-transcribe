@@ -38,7 +38,8 @@
     "jumpToTime": "Jump",
     "copy": "Copy",
     "original": "Original",
-    "selectLanguage": "Select Language"
+    "selectLanguage": "Select Language",
+    "chapterSummary": "Chapter Summary"
   },
   "practice": {
     "title": "Dictation Practice Mode",

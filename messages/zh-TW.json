@@ -38,7 +38,8 @@
     "jumpToTime": "跳轉播放",
     "copy": "複製",
     "original": "原文",
-    "selectLanguage": "選擇語言"
+    "selectLanguage": "選擇語言",
+    "chapterSummary": "章節摘要"
   },
   "practice": {
     "title": "聽打練習模式",
