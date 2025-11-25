@@ -750,24 +750,26 @@ export function BlanksFillPractice({
           <div className="flex items-center justify-between mb-2 md:mb-3">
             <h4 className="text-sm md:text-md font-medium text-slate-200">{t('practiceArea')}</h4>
             {!showFeedback && (
-              <Sheet open={showPeekAnswer} onOpenChange={setShowPeekAnswer}>
-                <SheetTrigger asChild>
-                  <button
-                    className="p-1.5 hover:bg-slate-700 rounded transition-colors"
-                    title={t("peek")}
-                  >
-                    <EyeOff className="w-4 h-4 text-slate-400" />
-                  </button>
-                </SheetTrigger>
-                <SheetContent side="bottom" className="bg-slate-800 border-slate-700 gap-0 ">
-                  <SheetHeader>
-                    <SheetTitle className="text-slate-100">{t("peek")}</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-1 p-4 m-3 pb-8 bg-slate-900 rounded-lg text-slate-100 text-base md:text-lg leading-relaxed">
-                    {currentBlanksSegment.text}
-                  </div>
-                </SheetContent>
-              </Sheet>
+              <div className="md:hidden">
+                <Sheet open={showPeekAnswer} onOpenChange={setShowPeekAnswer}>
+                  <SheetTrigger asChild>
+                    <button
+                      className="p-1.5 hover:bg-slate-700 rounded transition-colors"
+                      title={t("peek")}
+                    >
+                      <EyeOff className="w-4 h-4 text-slate-400" />
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="bg-slate-800 border-slate-700 gap-0 ">
+                    <SheetHeader>
+                      <SheetTitle className="text-slate-100">{t("peek")}</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-1 p-4 m-3 pb-8 bg-slate-900 rounded-lg text-slate-100 text-base md:text-lg leading-relaxed">
+                      {currentBlanksSegment.text}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
             )}
           </div>
           

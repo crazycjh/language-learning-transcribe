@@ -331,13 +331,14 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
               </button>
             </div>
 
-            {/* 摘要按鈕（只在 watch mode） */}
+            {/* 摘要按鈕（手機版，只在 watch mode） */}
             {!isPracticeMode && (
               <VideoSummary 
                 summary={summary}
                 availableLanguages={availableLanguages}
                 selectedLanguage={selectedLanguage}
                 onLanguageChange={setSelectedLanguage}
+                buttonOnly={true}
               />
             )}
 
@@ -380,6 +381,18 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
               </select>
             </div>
           </div>
+
+          {/* 摘要顯示（桌面版在播放器下方，手機版按鈕在控制區，只在 watch mode） */}
+          {!isPracticeMode && (
+            <div className="mt-4">
+              <VideoSummary 
+                summary={summary}
+                availableLanguages={availableLanguages}
+                selectedLanguage={selectedLanguage}
+                onLanguageChange={setSelectedLanguage}
+              />
+            </div>
+          )}
 
           {/* 練習模式下顯示句子信息（僅在電腦版左右分欄時） */}
           {isPracticeMode && segments.length > 0 && (
