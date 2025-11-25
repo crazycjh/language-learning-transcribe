@@ -2,12 +2,14 @@ import { VideoList } from './types';
 
 export async function getVideoList(): Promise<VideoList> {
   try {
-    const response = await fetch('/api/video-list', {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
+    // Server 端需要完整 URL，Client 端可以用相對路徑
+    const baseUrl = typeof window === 'undefined' 
+      ? (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3500')
+      : '';
+    
+    const response = await fetch(`${baseUrl}/api/video-list`, {
+      // Server 端使用 Next.js cache，預設 60 秒
+      next: { revalidate: 60 },
     });
     if (!response.ok) {
       throw new Error(`Failed to fetch video list: ${response.status}`);
