@@ -75,6 +75,16 @@
     "autoAdvance": "自動跳轉",
     "loadingContent": "載入練習內容中...",
     "allComplete": "練習完成！",
-    "congratulations": "恭喜您完成了所有句子的練習"
+    "congratulations": "恭喜您完成了所有句子的練習",
+    "practiceProgress": "練習進度",
+    "played": "已播放",
+    "previousSentence": "上一句：",
+    "currentSentence": "當前句子",
+    "listenAndType": "請先聽音頻，然後在右側輸入您聽到的內容",
+    "nextSentence": "下一句：",
+    "completed": "已完成",
+    "playing": "播放中",
+    "peek": "查看答案",
+    "hide": "隱藏答案"
   }
 }

@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Copy, Check, Loader2, Play, Languages, BookOpen } from "lucide-react";
 import { parseSRT, type Segment } from "@/lib/srt-utils";
-import { getSrtContent, getSegments, getSummary, type SummaryData } from "@/lib/video-service";
+import { getSrtContent, getSegments, getSummary } from "@/lib/video-service";
 import { getLanguageDisplayName } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -281,18 +282,18 @@ export function SrtTranscriptViewer({
                       {/* 語言選擇器 */}
                       <div className="flex items-center justify-between border-b border-slate-700 px-4 py-2">
                         <span className="text-xs text-slate-400">{t('chapterSummary')}</span>
-                        <select
-                          value={chapterSummaryLanguage}
-                          onChange={(e) => setChapterSummaryLanguage(e.target.value)}
-                          className="text-xs px-2 py-1 bg-slate-800 text-slate-300 border border-slate-600 rounded hover:bg-slate-700 transition-colors"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {availableLanguages.map((lang) => (
-                            <option key={lang} value={lang}>
-                              {getLanguageDisplayName(lang, t('original'))}
-                            </option>
-                          ))}
-                        </select>
+                        <Select value={chapterSummaryLanguage} onValueChange={setChapterSummaryLanguage}>
+                          <SelectTrigger className="w-auto h-7 text-xs border-slate-600 bg-slate-800 hover:bg-slate-700 text-slate-300">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-600">
+                            {availableLanguages.map((lang) => (
+                              <SelectItem key={lang} value={lang} className="text-xs text-slate-300 focus:bg-slate-700 focus:text-slate-100">
+                                {getLanguageDisplayName(lang, t('original'))}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       
                       {/* 章節內容 */}

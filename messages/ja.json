@@ -75,6 +75,16 @@
     "autoAdvance": "自動次へ",
     "loadingContent": "練習内容を読み込み中...",
     "allComplete": "練習完了！",
-    "congratulations": "おめでとうございます！すべての文の練習が完了しました"
+    "congratulations": "おめでとうございます！すべての文の練習が完了しました",
+    "practiceProgress": "練習進捗",
+    "played": "再生済み",
+    "previousSentence": "前の文：",
+    "currentSentence": "現在の文",
+    "listenAndType": "まず音声を聞いて、右側に聞こえた内容を入力してください",
+    "nextSentence": "次の文：",
+    "completed": "完了",
+    "playing": "再生中",
+    "peek": "答えを見る",
+    "hide": "答えを隠す"
   }
 }

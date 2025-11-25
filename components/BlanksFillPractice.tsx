@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Play, Pause, RotateCcw, Repeat, SkipBack, SkipForward, Loader2 } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Play, Pause, RotateCcw, Repeat, SkipBack, SkipForward, Loader2, EyeOff } from "lucide-react";
 import {
   type Segment,
   type BlanksSegment,
@@ -107,6 +108,7 @@ export function BlanksFillPractice({
   const [isLoopWaiting, setIsLoopWaiting] = useState(false);
   const [loopCountdown, setLoopCountdown] = useState(0);
   const [autoAdvance, setAutoAdvance] = useState(true); // 自動跳到下一個輸入框
+  const [showPeekAnswer, setShowPeekAnswer] = useState(false); // 查看答案
   const loopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTimeRef = useRef(currentTime);
   const inputRefs = useRef<Map<string, HTMLInputElement>>(new Map());
@@ -745,7 +747,30 @@ export function BlanksFillPractice({
 
         {/* 聽打區域 */}
         <div className="mb-4 md:mb-6">
-          <h4 className="text-sm md:text-md font-medium text-slate-200 mb-2 md:mb-3">{t('practiceArea')}</h4>
+          <div className="flex items-center justify-between mb-2 md:mb-3">
+            <h4 className="text-sm md:text-md font-medium text-slate-200">{t('practiceArea')}</h4>
+            {!showFeedback && (
+              <Sheet open={showPeekAnswer} onOpenChange={setShowPeekAnswer}>
+                <SheetTrigger asChild>
+                  <button
+                    className="p-1.5 hover:bg-slate-700 rounded transition-colors"
+                    title={t("peek")}
+                  >
+                    <EyeOff className="w-4 h-4 text-slate-400" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="bg-slate-800 border-slate-700 gap-0 ">
+                  <SheetHeader>
+                    <SheetTitle className="text-slate-100">{t("peek")}</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-1 p-4 m-3 pb-8 bg-slate-900 rounded-lg text-slate-100 text-base md:text-lg leading-relaxed">
+                    {currentBlanksSegment.text}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
+          </div>
+          
           <div className="bg-slate-800 rounded-lg p-2 md:p-4">
             {difficulty === BlanksDifficulty.ADVANCED ? (
               /* 高級模式：自由聽打 */
