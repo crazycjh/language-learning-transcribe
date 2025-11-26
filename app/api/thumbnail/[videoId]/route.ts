@@ -26,39 +26,39 @@ export async function GET(
   const url = new URL(req.url);
   const specifiedExt = url.searchParams.get('ext');
   
-  // 如果有指定副檔名，優先嘗試該格式
-  if (specifiedExt) {
-    try {
-      const imageResponse = await fetch(`${workerUrl}/metadata/${videoId}/thumbnail.${specifiedExt}`);
+  // 使用新的 RESTful API
+  try {
+    const imageResponse = await fetch(`${workerUrl}/api/video/${videoId}/thumbnail`);
 
-      // 檢查回應是否為有效圖片
-      const contentType = imageResponse.headers.get('content-type');
-      if (imageResponse.ok && contentType?.startsWith('image/')) {
-        const imageBuffer = await imageResponse.arrayBuffer();
+    // 檢查回應是否為有效圖片
+    const contentType = imageResponse.headers.get('content-type');
+    if (imageResponse.ok && contentType?.startsWith('image/')) {
+      const imageBuffer = await imageResponse.arrayBuffer();
 
-        // 檢查 worker 的快取狀態
-        const cfCacheStatus = imageResponse.headers.get('cf-cache-status');
-        const xCacheStatus = imageResponse.headers.get('x-cache-status');
-        const cacheStatus = cfCacheStatus || xCacheStatus || 'UNKNOWN';
+      // 檢查 worker 的快取狀態
+      const cfCacheStatus = imageResponse.headers.get('cf-cache-status');
+      const xCacheStatus = imageResponse.headers.get('x-cache-status');
+      const cacheStatus = cfCacheStatus || xCacheStatus || 'UNKNOWN';
 
-        console.log(`[Thumbnail API] videoId: ${videoId}, ext: ${specifiedExt}, cache: ${cacheStatus}`);
+      console.log(`[Thumbnail API] videoId: ${videoId}, cache: ${cacheStatus}`);
 
-        // 從 worker response 讀取 headers，如果有就用它
-        const cacheControl = imageResponse.headers.get('cache-control') || 'public, max-age=31536000, immutable';
+      // 從 worker response 讀取 headers，如果有就用它
+      const cacheControl = imageResponse.headers.get('cache-control') || 'public, max-age=31536000, immutable';
 
-        return new Response(imageBuffer, {
-          headers: {
-            'Content-Type': getMimeType(specifiedExt),
-            'Cache-Control': cacheControl, // 優先使用 worker 的設定
-            'Access-Control-Allow-Origin': '*',
-            'X-Worker-Cache-Status': cacheStatus, // 傳遞給前端
-          },
-        });
-      }
-    } catch (err) {
-      console.error(`Error fetching ${specifiedExt} thumbnail:`, err);
-      // 繼續嘗試其他格式
+      // 使用 worker 回傳的 content-type，或根據指定的副檔名決定
+      const finalContentType = contentType || (specifiedExt ? getMimeType(specifiedExt) : 'image/webp');
+
+      return new Response(imageBuffer, {
+        headers: {
+          'Content-Type': finalContentType,
+          'Cache-Control': cacheControl,
+          'Access-Control-Allow-Origin': '*',
+          'X-Worker-Cache-Status': cacheStatus,
+        },
+      });
     }
+  } catch (err) {
+    console.error(`Error fetching thumbnail:`, err);
   }
 
   // Fallback: 嘗試多種圖片格式

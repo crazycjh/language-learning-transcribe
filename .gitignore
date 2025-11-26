@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# kiro
+.kiro
+
 # PWA files
 public/sw.js
 public/sw.js.map

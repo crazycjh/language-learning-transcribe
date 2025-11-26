@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const title = t('title');
   const description = tVideoList('pageDescription');
   const canonicalUrl = `${siteUrl}/${locale}/video-list`;
-
+  
   return {
     title,
     description,

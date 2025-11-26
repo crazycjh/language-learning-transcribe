@@ -2,12 +2,14 @@ import { VideoList } from './types';
 
 export async function getVideoList(): Promise<VideoList> {
   try {
-    const response = await fetch('/api/video-list', {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
+    // Server 端需要完整 URL，Client 端可以用相對路徑
+    const baseUrl = typeof window === 'undefined' 
+      ? (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3500')
+      : '';
+    
+    const response = await fetch(`${baseUrl}/api/video-list`, {
+      // Server 端使用 Next.js cache，預設 60 秒
+      next: { revalidate: 60 },
     });
     if (!response.ok) {
       throw new Error(`Failed to fetch video list: ${response.status}`);
@@ -19,9 +21,10 @@ export async function getVideoList(): Promise<VideoList> {
   }
 }
 
-export async function getSrtContent(videoId: string): Promise<string> {
+export async function getSrtContent(videoId: string, lang?: string): Promise<string> {
   try {
-    const response = await fetch(`/api/srt/${videoId}`, {
+    const url = lang ? `/api/srt/${videoId}?lang=${lang}` : `/api/srt/${videoId}`;
+    const response = await fetch(url, {
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -35,6 +38,107 @@ export async function getSrtContent(videoId: string): Promise<string> {
   } catch (error) {
     console.error('Error fetching SRT:', error);
     throw error;
+  }
+}
+
+export async function getAvailableLanguages(videoId: string): Promise<string[]> {
+  try {
+    const response = await fetch(`/api/video/${videoId}/languages`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch languages: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.languages || [];
+  } catch (error) {
+    console.error('Error fetching languages:', error);
+    return ['default'];
+  }
+}
+
+export interface SummaryData {
+  videoId: string;
+  language: string;
+  overallSummary: string;
+  segmentSummaries: Array<{
+    segmentId: string;
+    topic: string;
+    summary: string;
+  }>;
+  metadata: {
+    aiService: string;
+    processingTime: number;
+    createdAt: string;
+    translatedFrom?: string;
+  };
+}
+
+export interface SegmentsData {
+  videoId: string;
+  language: string;
+  segments: Array<{
+    id: string;
+    topic: string;
+    startIndex: number;
+    endIndex: number;
+    timeStart: string;
+    timeEnd: string;
+  }>;
+  metadata: {
+    totalSegments: number;
+    totalEntries: number;
+    averageSegmentLength: number;
+    createdAt: string;
+    translatedFrom?: string;
+  };
+}
+
+export async function getSummary(videoId: string, lang?: string): Promise<SummaryData | null> {
+  try {
+    const url = lang 
+      ? `/api/video/${videoId}/summary?lang=${lang}` 
+      : `/api/video/${videoId}/summary`;
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+    if (!response.ok) {
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching summary:', error);
+    return null;
+  }
+}
+
+export async function getSegments(videoId: string, lang?: string): Promise<SegmentsData | null> {
+  try {
+    const url = lang 
+      ? `/api/video/${videoId}/segments?lang=${lang}` 
+      : `/api/video/${videoId}/segments`;
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+    if (!response.ok) {
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching segments:', error);
+    return null;
   }
 }
 

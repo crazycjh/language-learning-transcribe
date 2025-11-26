@@ -1,6 +1,8 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, EyeOff } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { type Segment } from "@/lib/srt-utils";
 
 interface SentenceDisplayProps {
@@ -20,6 +22,7 @@ export function SentenceDisplay({
   onPreviousSegment,
   onNextSegment
 }: SentenceDisplayProps) {
+  const t = useTranslations("practice");
   const currentSegment = segments[currentSegmentIndex];
   const previousSegment = currentSegmentIndex > 0 ? segments[currentSegmentIndex - 1] : null;
   const nextSegment = currentSegmentIndex < segments.length - 1 ? segments[currentSegmentIndex + 1] : null;
@@ -43,8 +46,8 @@ export function SentenceDisplay({
     return (
       <div className="mt-4 p-4 bg-slate-800 rounded-lg">
         <div className="text-slate-400 text-center">
-          <h3 className="text-xl mb-2">練習完成！</h3>
-          <p>恭喜您完成了所有句子的練習</p>
+          <h3 className="text-xl mb-2">{t("allComplete")}</h3>
+          <p>{t("congratulations")}</p>
         </div>
       </div>
     );
@@ -55,10 +58,10 @@ export function SentenceDisplay({
       {/* 進度指示 */}
       <div className="flex justify-between items-center">
         <span className="text-slate-400 text-sm">
-          練習進度: {currentSegmentIndex + 1} / {segments.length}
+          {t("practiceProgress")}: {currentSegmentIndex + 1} / {segments.length}
         </span>
         <span className="text-slate-400 text-sm">
-          {Math.round(segmentProgress)}% 已播放
+          {Math.round(segmentProgress)}% {t("played")}
         </span>
       </div>
 
@@ -70,7 +73,7 @@ export function SentenceDisplay({
         >
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <span className="text-xs text-slate-600 group-hover:text-slate-400">上一句：</span>
+              <span className="text-xs text-slate-600 group-hover:text-slate-400">{t("previousSentence")}</span>
               <p className="opacity-70 group-hover:opacity-90 mt-1 line-clamp-2">{previousSegment.text}</p>
             </div>
             <ChevronLeft className="w-4 h-4 text-slate-600 group-hover:text-slate-400 ml-2 flex-shrink-0" />
@@ -81,11 +84,36 @@ export function SentenceDisplay({
       {/* 當前句子 */}
       <div className="bg-slate-800 rounded-lg p-4 border-l-4 border-blue-600">
         <div className="mb-2">
-          <span className="text-xs text-blue-400 font-medium">當前句子</span>
+          <span className="text-xs text-blue-400 font-medium">{t("currentSentence")}</span>
         </div>
-        <p className="text-slate-100 text-base leading-relaxed mb-3">
-          {showFeedback ? currentSegment.text : "請先聽音頻，然後在右側輸入您聽到的內容"}
-        </p>
+        <div className="relative mb-3">
+          <div className="text-slate-100 text-base leading-relaxed">
+            {showFeedback ? (
+              currentSegment.text
+            ) : (
+              <span className="text-slate-400 italic flex items-center gap-2">
+                <span>{t("listenAndType")}</span>
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="p-1 hover:bg-slate-700 rounded transition-colors flex-shrink-0 pointer-events-auto">
+                        <EyeOff className="w-4 h-4 text-slate-400" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent 
+                      side="bottom" 
+                      align="start"
+                      hideArrow
+                      className="bg-slate-700 text-slate-100 border-slate-600 max-w-xs"
+                    >
+                      <p className="text-sm">{currentSegment.text}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </span>
+            )}
+          </div>
+        </div>
         
         {/* 播放進度條 */}
         <div className="space-y-1">
@@ -103,7 +131,7 @@ export function SentenceDisplay({
               / {(currentSegment.endTime - currentSegment.startTime).toFixed(1)}s
             </span>
             <span className="text-blue-400">
-              {segmentProgress === 100 ? '✓ 已完成' : '播放中'}
+              {segmentProgress === 100 ? `✓ ${t("completed")}` : t("playing")}
             </span>
           </div>
         </div>
@@ -117,7 +145,7 @@ export function SentenceDisplay({
         >
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <span className="text-xs text-slate-600 group-hover:text-slate-400">下一句：</span>
+              <span className="text-xs text-slate-600 group-hover:text-slate-400">{t("nextSentence")}</span>
               <p className="opacity-70 group-hover:opacity-90 mt-1 line-clamp-2">{nextSegment.text}</p>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 ml-2 flex-shrink-0" />

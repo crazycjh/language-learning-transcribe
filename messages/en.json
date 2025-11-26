@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "title": "Dictation Language Learning",
+    "title": "LingoBitz",
     "description": "Improve listening and speaking through video dictation and sentence practice"
   },
   "common": {
@@ -29,7 +29,17 @@
     "share": "Share",
     "shareTitle": "Share current position",
     "linkCopied": "Link copied!",
-    "playbackSpeed": "Speed"
+    "playbackSpeed": "Speed",
+    "summary": "Summary",
+    "loadingSummary": "Loading...",
+    "showTranslation": "Translation",
+    "copied": "Copied",
+    "loadingTranscript": "Loading...",
+    "jumpToTime": "Jump",
+    "copy": "Copy",
+    "original": "Original",
+    "selectLanguage": "Select Language",
+    "chapterSummary": "Chapter Summary"
   },
   "practice": {
     "title": "Dictation Practice Mode",
@@ -62,8 +72,19 @@
     "accuracyNote": "* Accuracy: Correct blanks ÷ Total blanks × 100%",
     "retry": "Retry",
     "listenAgain": "Listen Again",
+    "autoAdvance": "Auto Next",
     "loadingContent": "Loading practice content...",
     "allComplete": "Practice Complete!",
-    "congratulations": "Congratulations! You've completed all sentences"
+    "congratulations": "Congratulations! You've completed all sentences",
+    "practiceProgress": "Practice Progress",
+    "played": "Played",
+    "previousSentence": "Previous:",
+    "currentSentence": "Current Sentence",
+    "listenAndType": "Listen to the audio first, then type what you heard on the right",
+    "nextSentence": "Next:",
+    "completed": "Completed",
+    "playing": "Playing",
+    "peek": "Peek Answer",
+    "hide": "Hide Answer"
   }
 }

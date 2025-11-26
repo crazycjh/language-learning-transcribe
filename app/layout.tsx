@@ -13,8 +13,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "語聽通",
-  description: "透過影片逐句聽寫和口說練習,提升語言聽力與表達能力",
+  title: "LingoBitz",
+  description: "Improve listening and speaking through video dictation and sentence practice",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 // Root layout - 包含 HTML 結構，locale layout 負責 i18n

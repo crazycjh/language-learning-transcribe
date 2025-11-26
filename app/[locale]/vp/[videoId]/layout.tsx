@@ -24,7 +24,8 @@ export async function generateMetadata({
 
   try {
     if (workerUrl) {
-      const response = await fetch(`${workerUrl}/videolist`, {
+      // 使用新的 RESTful API
+      const response = await fetch(`${workerUrl}/api/videolist`, {
         cache: 'no-store'
       });
 
@@ -36,14 +37,8 @@ export async function generateMetadata({
           videoTitle = video.title || videoTitle;
           videoDescription = video.description || videoDescription;
 
-          // 使用影片的縮圖
-          if (video.thumbnail) {
-            const match = video.thumbnail.match(/\.(\w+)$/);
-            const ext = match ? match[1] : null;
-            thumbnailUrl = ext
-              ? `${siteUrl}/api/thumbnail/${videoId}?ext=${ext}`
-              : `${siteUrl}/api/thumbnail/${videoId}`;
-          }
+          // 使用新的 thumbnail API（不需要副檔名）
+          thumbnailUrl = `${siteUrl}/api/thumbnail/${videoId}`;
         }
       }
     }
@@ -97,7 +92,8 @@ async function getVideoInfo(videoId: string) {
 
   try {
     if (workerUrl) {
-      const response = await fetch(`${workerUrl}/videolist`, {
+      // 使用新的 RESTful API
+      const response = await fetch(`${workerUrl}/api/videolist`, {
         cache: 'no-store'
       });
 

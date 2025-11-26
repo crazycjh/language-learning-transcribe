@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "title": "語聽通",
+    "title": "LingoBitz",
     "description": "透過影片逐句聽寫和口說練習,提升語言聽力與表達能力"
   },
   "common": {
@@ -29,7 +29,17 @@
     "share": "分享",
     "shareTitle": "分享當前位置",
     "linkCopied": "已複製連結！",
-    "playbackSpeed": "播放速度"
+    "playbackSpeed": "播放速度",
+    "summary": "摘要",
+    "loadingSummary": "載入中...",
+    "showTranslation": "顯示翻譯",
+    "copied": "已複製",
+    "loadingTranscript": "載入逐字稿中...",
+    "jumpToTime": "跳轉播放",
+    "copy": "複製",
+    "original": "原文",
+    "selectLanguage": "選擇語言",
+    "chapterSummary": "章節摘要"
   },
   "practice": {
     "title": "聽打練習模式",
@@ -62,8 +72,19 @@
     "accuracyNote": "* 準確度計算：正確填寫的空格數 ÷ 總空格數 × 100%",
     "retry": "重新嘗試",
     "listenAgain": "再聽一次",
+    "autoAdvance": "自動跳轉",
     "loadingContent": "載入練習內容中...",
     "allComplete": "練習完成！",
-    "congratulations": "恭喜您完成了所有句子的練習"
+    "congratulations": "恭喜您完成了所有句子的練習",
+    "practiceProgress": "練習進度",
+    "played": "已播放",
+    "previousSentence": "上一句：",
+    "currentSentence": "當前句子",
+    "listenAndType": "請先聽音頻，然後在右側輸入您聽到的內容",
+    "nextSentence": "下一句：",
+    "completed": "已完成",
+    "playing": "播放中",
+    "peek": "查看答案",
+    "hide": "隱藏答案"
   }
 }

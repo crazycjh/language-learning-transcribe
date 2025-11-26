@@ -12,8 +12,9 @@ import { SrtTranscriptViewer } from "@/components/SrtTranscriptViewer";
 import { BlanksFillPractice } from "@/components/BlanksFillPractice";
 import { SentenceDisplay } from "@/components/SentenceDisplay";
 import { parseSRT } from "@/lib/srt-utils";
-import { getSrtContent } from "@/lib/video-service";
+import { getSrtContent, getAvailableLanguages, getSummary } from "@/lib/video-service";
 import { ArrowLeft, Loader2, Share } from "lucide-react";
+import { VideoSummary } from "@/components/VideoSummary";
 
 // 4voKeMm3u1Y
 export default function VideoPlayerClient({ videoId }: { videoId: string }) {
@@ -43,14 +44,28 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     null
   );
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('default');
 
   // Wake Lock for keeping screen awake during playback
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
-  // 使用 TanStack Query 抓取並快取 SRT 資料
+  // 使用 TanStack Query 抓取可用語言
+  const { data: availableLanguages = ['default'] } = useQuery({
+    queryKey: ["languages", videoId],
+    queryFn: () => getAvailableLanguages(videoId),
+  });
+
+  // 使用 TanStack Query 抓取並快取 SRT 資料（永遠使用 default）
   const { data: srtContent = "", isLoading } = useQuery({
     queryKey: ["srt", videoId],
     queryFn: () => getSrtContent(videoId),
+  });
+
+  // 使用 TanStack Query 抓取摘要資料（根據選擇的語言）
+  const { data: summary } = useQuery({
+    queryKey: ["summary", videoId, selectedLanguage],
+    queryFn: () => getSummary(videoId, selectedLanguage === 'default' ? undefined : selectedLanguage),
+    enabled: !isPracticeMode, // 只在 watch mode 載入摘要
   });
 
   // 從 srtContent 計算 segments
@@ -244,6 +259,8 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
     };
   }, [requestWakeLock, releaseWakeLock]);
 
+
+
   if (isLoading) {
     return (
       <div className="bg-slate-900 h-[calc(100vh-3.5rem)] flex items-center justify-center">
@@ -256,29 +273,29 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   return (
     <div className="bg-slate-900 h-[calc(100vh-3.5rem)] flex flex-col">
       {/* 返回按鈕 */}
-      <div className="flex-shrink-0 max-w-7xl w-full mx-auto px-4 md:px-10 pt-4 pb-2">
+      <div className="flex-shrink-0 max-w-7xl w-full mx-auto px-2 md:px-10 pt-2 md:pt-4 pb-1 md:pb-2">
         <button
           onClick={() => router.push(`/${locale}`)}
-          className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 text-sm md:text-base text-slate-300 hover:text-slate-100 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+          className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-4 md:py-2 text-xs md:text-base text-slate-300 hover:text-slate-100 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
         >
-          <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+          <ArrowLeft className="w-3 h-3 md:w-5 md:h-5" />
           <span>{tCommon("back")}</span>
         </button>
       </div>
 
       <div
-        className={`flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-4 px-4 md:px-10 pb-4 md:pb-10 ${
-          isPracticeMode ? "overflow-auto" : "overflow-hidden"
+        className={`flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-2 md:gap-4 px-2 md:px-10 pb-2 md:pb-10 ${
+          isPracticeMode ? "overflow-auto scrollbar-hide" : "overflow-hidden"
         }`}
       >
-        <div className="w-full md:w-1/2">
+        <div className={`w-full md:w-1/2 ${!isPracticeMode ? "md:overflow-y-auto scrollbar-hide" : ""}`}>
           <YouTubePlayer
             videoId={videoId}
             onTimeUpdate={handleTimeUpdate}
             onStateChange={handlePlayerStateChange}
             onPlayerReady={setPlayer}
           />
-          <div className="mt-4 flex items-center gap-2 md:gap-4 flex-wrap">
+          <div className="mt-4 flex items-stretch gap-2 md:gap-4 flex-wrap ">
             {/* <span className="text-slate-400">當前時間: {Math.round(currentTime)}s</span> */}
             <div className="flex gap-1 md:gap-2">
               <button
@@ -313,15 +330,26 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                 {t("practiceMode")}
               </button>
             </div>
+
+            {/* 摘要按鈕（手機版，只在 watch mode） */}
+            {!isPracticeMode && (
+              <VideoSummary 
+                summary={summary}
+                availableLanguages={availableLanguages}
+                selectedLanguage={selectedLanguage}
+                onLanguageChange={setSelectedLanguage}
+                buttonOnly={true}
+              />
+            )}
+
             {/* 分享按鈕 */}
-            <div className="relative">
+            <div className="relative flex">
               <button
                 onClick={handleShare}
-                className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-4 md:py-2 text-sm md:text-base bg-slate-700 text-slate-300 hover:bg-slate-600 rounded transition-colors"
+                className="flex items-center justify-center px-3 py-1 md:px-4 md:py-2 text-sm md:text-base bg-slate-700 text-slate-300 hover:bg-slate-600 rounded transition-colors h-full"
                 title={t("shareTitle")}
               >
                 <Share className="w-3 h-3 md:w-4 md:h-4" />
-                <span className="hidden md:inline">{t("share")}</span>
               </button>
               {showCopiedMessage && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1 bg-blue-600 text-white text-xs md:text-sm rounded whitespace-nowrap z-10">
@@ -354,6 +382,18 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
             </div>
           </div>
 
+          {/* 摘要顯示（桌面版在播放器下方，手機版按鈕在控制區，只在 watch mode） */}
+          {!isPracticeMode && (
+            <div className="mt-4">
+              <VideoSummary 
+                summary={summary}
+                availableLanguages={availableLanguages}
+                selectedLanguage={selectedLanguage}
+                onLanguageChange={setSelectedLanguage}
+              />
+            </div>
+          )}
+
           {/* 練習模式下顯示句子信息（僅在電腦版左右分欄時） */}
           {isPracticeMode && segments.length > 0 && (
             <div className="hidden md:block">
@@ -382,9 +422,12 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
             />
           ) : (
             <SrtTranscriptViewer
+              key={videoId}
               srtContent={srtContent}
               currentTime={currentTime}
               onSegmentClick={handleSegmentClick}
+              videoId={videoId}
+              availableLanguages={availableLanguages}
             />
           )}
         </div>
