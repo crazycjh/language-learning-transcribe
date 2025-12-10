@@ -15,6 +15,7 @@ import {
   calculateFreeTypingAccuracy
 } from "@/lib/srt-utils";
 import { type YouTubePlayerInterface } from "@/components/YouTubePlayer";
+import { trackPracticeComplete } from "@/lib/analytics";
 
 interface BlanksFillPracticeProps {
   segments: Segment[];
@@ -25,6 +26,7 @@ interface BlanksFillPracticeProps {
   onSegmentIndexChange: (index: number) => void;
   onFeedbackChange: (show: boolean) => void;
   externalPlayState?: boolean | null;
+  videoId: string;
 }
 
 interface PracticeState {
@@ -64,7 +66,8 @@ export function BlanksFillPractice({
   showFeedback,
   onSegmentIndexChange,
   onFeedbackChange,
-  externalPlayState
+  externalPlayState,
+  videoId
 }: BlanksFillPracticeProps) {
   const t = useTranslations('practice');
   const [difficulty, setDifficulty] = useState<BlanksDifficulty>(BlanksDifficulty.INTERMEDIATE);
@@ -547,6 +550,9 @@ export function BlanksFillPractice({
     };
     
     setDifficultyMemory(currentMemory);
+    
+    // 追蹤練習完成事件
+    trackPracticeComplete(videoId, difficulty, accuracy);
   };
 
   // 重新嘗試
