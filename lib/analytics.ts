@@ -25,8 +25,6 @@ export const pageview = (url: string) => {
 
 // 環境資訊檢查
 export const getEnvironmentInfo = () => ({
-  NODE_ENV: process.env.NODE_ENV,
-  VERCEL_ENV: process.env.VERCEL_ENV,
   APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
   GA_ID: GA_MEASUREMENT_ID,
   GA_ENABLED: GA_ENABLED,
@@ -47,7 +45,7 @@ export const event = (action: string, parameters?: Record<string, unknown>) => {
 
   if (typeof window !== 'undefined' && window.gtag && GA_ENABLED) {
     // 在開發環境為事件加上標記
-    const enhancedParameters = process.env.NODE_ENV === 'development' 
+    const enhancedParameters = process.env.NEXT_PUBLIC_APP_ENV === 'development' 
       ? { ...parameters, environment: 'development' }
       : parameters;
       
