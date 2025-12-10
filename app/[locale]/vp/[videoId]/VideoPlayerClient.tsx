@@ -15,6 +15,8 @@ import { parseSRT } from "@/lib/srt-utils";
 import { getSrtContent, getAvailableLanguages, getSummary } from "@/lib/video-service";
 import { ArrowLeft, Loader2, Share } from "lucide-react";
 import { VideoSummary } from "@/components/VideoSummary";
+import { trackVideoPlay, trackPracticeStart, trackLanguageSwitch } from "@/lib/analytics";
+import { usePageTracking } from "@/lib/hooks/usePageTracking";
 
 // 4voKeMm3u1Y
 export default function VideoPlayerClient({ videoId }: { videoId: string }) {
@@ -46,8 +48,25 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('default');
 
+  // 語言切換處理函數（加入 GA 追蹤）
+  const handleLanguageChange = useCallback((newLanguage: string) => {
+    const oldLanguage = selectedLanguage;
+    setSelectedLanguage(newLanguage);
+    
+    // 追蹤語言切換事件
+    if (oldLanguage !== newLanguage) {
+      trackLanguageSwitch(oldLanguage, newLanguage);
+    }
+  }, [selectedLanguage]);
+
   // Wake Lock for keeping screen awake during playback
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  
+  // 使用 ref 追蹤最新的 selectedLanguage，避免 callback 重新創建
+  const selectedLanguageRef = useRef(selectedLanguage);
+
+  // 頁面瀏覽追蹤
+  usePageTracking();
 
   // 使用 TanStack Query 抓取可用語言
   const { data: availableLanguages = ['default'] } = useQuery({
@@ -119,12 +138,15 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
       if (state === 1) {
         setExternalPlayState(true);
         requestWakeLock(); // 播放時啟用 wake lock
+        
+        // 追蹤影片播放事件 - 使用 ref 獲取最新的語言值，避免依賴導致重新創建
+        trackVideoPlay(videoId, selectedLanguageRef.current);
       } else if (state === 2) {
         setExternalPlayState(false);
         releaseWakeLock(); // 暫停時釋放 wake lock
       }
     },
-    [requestWakeLock, releaseWakeLock]
+    [requestWakeLock, releaseWakeLock, videoId]
   );
 
   const handleSegmentClick = useCallback(
@@ -205,6 +227,11 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
   useEffect(() => {
     externalPlayStateRef.current = externalPlayState;
   }, [externalPlayState]);
+
+  // 同步 selectedLanguage 到 ref
+  useEffect(() => {
+    selectedLanguageRef.current = selectedLanguage;
+  }, [selectedLanguage]);
 
   // 從 URL 參數初始化播放位置（僅執行一次）
   const hasInitialized = useRef(false);
@@ -325,6 +352,9 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                   if (newIndex !== -1) {
                     setCurrentSegmentIndex(newIndex);
                   }
+                  
+                  // 追蹤練習模式開始
+                  trackPracticeStart(videoId, 'mixed'); // 預設難度
                 }}
               >
                 {t("practiceMode")}
@@ -337,7 +367,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                 summary={summary}
                 availableLanguages={availableLanguages}
                 selectedLanguage={selectedLanguage}
-                onLanguageChange={setSelectedLanguage}
+                onLanguageChange={handleLanguageChange}
                 buttonOnly={true}
               />
             )}
@@ -389,7 +419,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
                 summary={summary}
                 availableLanguages={availableLanguages}
                 selectedLanguage={selectedLanguage}
-                onLanguageChange={setSelectedLanguage}
+                onLanguageChange={handleLanguageChange}
               />
             </div>
           )}
@@ -419,6 +449,7 @@ export default function VideoPlayerClient({ videoId }: { videoId: string }) {
               onSegmentIndexChange={setCurrentSegmentIndex}
               onFeedbackChange={setShowFeedback}
               externalPlayState={externalPlayState}
+              videoId={videoId}
             />
           ) : (
             <SrtTranscriptViewer

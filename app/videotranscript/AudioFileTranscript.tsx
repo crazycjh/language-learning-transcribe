@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, Upload } from "lucide-react";
 import { Socket } from "socket.io-client";
 import SocketManager from "@/lib/socketManager";
+import { trackTranscriptionStart, trackTranscriptionComplete } from "@/lib/analytics";
 
 interface AudioFileTranscriptProps {
   onTranscriptUpdate: (text: string, srt: string, audioFile?: File) => void;
@@ -110,6 +111,9 @@ export function AudioFileTranscript({
     transcriptSRTRef.current = "";
     onLoadingChange(true);
 
+    // 追蹤轉錄開始事件
+    trackTranscriptionStart('audio_file');
+
     const formData = new FormData();
     formData.append("audio", file);
 
@@ -181,6 +185,12 @@ export function AudioFileTranscript({
           // 轉錄完成時再次傳遞檔案以確保音頻播放器可用
           onTranscriptUpdate(transcriptRef.current, transcriptSRTRef.current, file);
           setIsLoading(false);
+          
+          // 追蹤轉錄完成事件
+          if (startTime) {
+            const duration = Math.round((Date.now() - startTime) / 1000);
+            trackTranscriptionComplete('audio_file', duration);
+          }
         }
       });
       const newJobId = res.data.jobId;

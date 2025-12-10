@@ -57,13 +57,6 @@ export function SrtTranscriptViewer({
     queryFn: () => getSummary(videoId, chapterSummaryLanguage === 'default' ? undefined : chapterSummaryLanguage),
   });
 
-  // Debug: 檢查 segments 資料
-  useEffect(() => {
-    if (segmentsData) {
-      console.log('Segments data:', segmentsData);
-      console.log('Total segments:', segments.length);
-    }
-  }, [segmentsData, segments.length]);
 
   // 解析翻譯字幕
   const [translationSegments, setTranslationSegments] = useState<Segment[]>([]);

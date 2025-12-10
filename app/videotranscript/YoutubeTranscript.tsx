@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Youtube } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
+import { trackTranscriptionStart, trackTranscriptionComplete } from "@/lib/analytics";
 
 interface YoutubeTranscriptProps {
   onTranscriptUpdate: (text: string, srt: string) => void;
@@ -123,6 +124,9 @@ export function YoutubeTranscript({
     setProgress(0);
     setTranscriptProgress(0);
 
+    // 追蹤轉錄開始事件
+    trackTranscriptionStart('youtube');
+
     try {
       // 發送 HTTP 請求獲取 jobId
       const res = await axios.post(
@@ -205,6 +209,12 @@ export function YoutubeTranscript({
             setTranscriptProgress(100);
             setIsLoading(false);
             onLoadingChange(false);
+            
+            // 追蹤轉錄完成事件
+            if (startTime) {
+              const duration = Math.round((Date.now() - startTime) / 1000);
+              trackTranscriptionComplete('youtube', duration);
+            }
             break;
           case "error":
             throw new Error(parsedData.data.error || "處理過程中發生錯誤");

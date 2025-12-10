@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { GoogleAnalytics } from '@next/third-parties/google';
+import { getGAConfig } from '@/lib/ga-config';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,10 +31,22 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaConfig = getGAConfig();
+
+  // 臨時調試：在服務器端 log GA 配置
+  console.log('🔧 Server GA Config:', {
+    measurementId: gaConfig.measurementId,
+    enabled: gaConfig.enabled,
+    willRenderGA: !!(gaConfig.measurementId && gaConfig.enabled)
+  });
+
   return (
     <html suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-900 text-slate-100`}>
         {children}
+        {gaConfig.measurementId && gaConfig.enabled && (
+          <GoogleAnalytics gaId={gaConfig.measurementId} />
+        )}
       </body>
     </html>
   );
