@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "LingoBitz",
   description: "Improve listening and speaking through video dictation and sentence practice",
+  icons: {
+    icon: '/favicon.ico',
+  },
   viewport: {
     width: "device-width",
     initialScale: 1,
