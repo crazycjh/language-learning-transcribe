@@ -1,7 +1,7 @@
 {
-  "name": "YouTube 影片學習平台",
-  "short_name": "影片學習",
-  "description": "影片轉錄、互動字幕與語言學習功能",
+  "name": "LingoBitz",
+  "short_name": "LingoBitz",
+  "description": "互動字幕與語言學習功能",
   "theme_color": "#0f172a",
   "background_color": "#0f172a",
   "display": "standalone",
@@ -10,13 +10,13 @@
   "start_url": "/",
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/favicon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/favicon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
