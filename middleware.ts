@@ -27,5 +27,5 @@ export default function middleware(request: NextRequest) {
 
 export const config = {
   // 匹配所有路徑（包含根路徑），除了 API routes、_next、static files 和 legacy routes
-  matcher: ['/', '/((?!api|_next|_vercel|videotranscript|yt|test|.*\\..*).*)']
+  matcher: ['/', '/((?!api|_next|_vercel|yt|test|.*\\..*).*)']
 };

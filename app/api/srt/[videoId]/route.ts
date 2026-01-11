@@ -37,8 +37,7 @@ export async function GET(
     console.log(`[SRT API] videoId: ${videoId}, lang: ${lang || 'default'}, cache: ${cacheStatus}`);
 
     // 從 worker response 讀取 cache-control，如果沒有則使用預設值
-    const cacheControl = resp.headers.get('cache-control') || 'public, max-age=31536000, immutable';
-
+    const cacheControl = resp.headers.get('cache-control') || 'public, max-age=31536000';
     const srtContent = await resp.text();
     return new Response(srtContent, {
       headers: {

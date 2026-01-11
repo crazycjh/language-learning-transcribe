@@ -14,7 +14,7 @@
     "title": "Video List",
     "loadingVideos": "Loading...",
     "loadError": "Failed to load video list",
-    "noVideos": "No transcribed videos available",
+    "noVideos": "No learning videos available",
     "totalVideos": "{count} videos total",
     "startPractice": "Start Practice",
     "practice": "Practice",

@@ -1,7 +1,7 @@
 {
   "name": "LingoBitz",
   "short_name": "LingoBitz",
-  "description": "互動字幕與語言學習功能",
+  "description": "YouTube 語言學習平台 - 互動字幕與聽打練習",
   "theme_color": "#0f172a",
   "background_color": "#0f172a",
   "display": "standalone",
