@@ -86,18 +86,3 @@ export const trackLanguageSwitch = (fromLanguage: string, toLanguage: string) =>
     category: 'navigation'
   });
 };
-
-export const trackTranscriptionStart = (source: 'youtube' | 'audio_file') => {
-  event('transcription_start', {
-    source: source,
-    category: 'feature_usage'
-  });
-};
-
-export const trackTranscriptionComplete = (source: 'youtube' | 'audio_file', duration: number) => {
-  event('transcription_complete', {
-    source: source,
-    duration: duration,
-    category: 'feature_usage'
-  });
-};

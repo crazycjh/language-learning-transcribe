@@ -14,7 +14,7 @@
     "title": "影片列表",
     "loadingVideos": "載入中...",
     "loadError": "無法載入影片列表",
-    "noVideos": "目前沒有已轉錄的影片",
+    "noVideos": "目前沒有可用的學習影片",
     "totalVideos": "共 {count} 部影片",
     "startPractice": "開始練習",
     "practice": "練習",

@@ -1,8 +1,8 @@
-# 🎯 YouTube 智能學習平台
+# 🎯 YouTube 語言學習平台
 
-> **集轉錄、字幕查看與智能聽打練習於一體的現代化語言學習平台**
+> **專注於字幕查看與智能聽打練習的現代化語言學習平台**
 
-一個基於 Next.js 15 構建的 YouTube 視頻學習生態系統，提供從視頻轉錄到語言學習的完整解決方案。通過 AI 驅動的轉錄技術和獨創的三層漸進式聽打練習系統，為語言學習者提供專業級的學習工具。
+一個基於 Next.js 15 構建的 YouTube 視頻學習生態系統，專為語言學習者設計。通過獨創的三層漸進式聽打練習系統和互動字幕功能，為語言學習者提供專業級的學習工具。
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.0-black)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19.0.0-61dafb)](https://reactjs.org)
@@ -12,12 +12,6 @@
 ---
 
 ## ✨ 核心功能特色
-
-### 🎥 **智能轉錄系統**
-- **YouTube 視頻轉錄** - 支援任意 YouTube 影片自動生成逐字稿
-- **音頻文件轉錄** - 支援多種音頻格式上傳轉錄
-- **實時進度追蹤** - Socket.io 驅動的轉錄進度即時更新
-- **SRT 字幕導出** - 自動生成標準 SRT 字幕文件
 
 ### 📝 **三層漸進式聽打練習**
 我們的獨創聽打練習系統，提供從初學者到高階的完整學習路徑：
@@ -58,7 +52,7 @@
 ```bash
 # 克隆專案
 git clone <repository-url>
-cd transcribe-translate-split
+cd lingobitz-language-learning
 
 # 安裝依賴
 npm install
@@ -70,7 +64,7 @@ npm run dev
 ### 訪問應用
 開發伺服器啟動後，在瀏覽器中訪問：
 - **本地地址**: [http://localhost:3500](http://localhost:3500)
-- **主要功能**: 應用將自動重定向到轉錄功能頁面
+- **主要功能**: 應用將自動重定向到視頻列表頁面
 
 ---
 
@@ -83,10 +77,8 @@ npm run dev
 - **開發工具**: Turbopack (快速建構)
 
 ### AI 與後端服務
-- **語音轉錄**: OpenAI Whisper API
-- **文本處理**: OpenAI GPT-4o-mini
-- **實時通信**: Socket.io WebSocket
 - **文件存儲**: Cloudflare R2 / AWS S3
+- **國際化**: next-intl 多語言支持
 
 ### 組件架構
 - **函數式組件**: 100% React Hooks 架構
@@ -101,67 +93,52 @@ npm run dev
 ```
 ├── app/                          # Next.js App Router
 │   ├── api/                      # 後端 API 路由
-│   │   ├── openai/              # OpenAI 服務集成
 │   │   ├── srt/[videoId]/       # SRT 字幕文件服務
-│   │   └── sentence-split/      # AI 文本分段服務
-│   ├── videotranscript/         # 📽️ 轉錄功能主頁面
-│   │   ├── youtube-client.tsx   # YouTube 轉錄客戶端
-│   │   └── audio-client.tsx     # 音頻文件轉錄客戶端
+│   │   └── video/               # 視頻相關 API
 │   ├── vp/[videoId]/           # 🎯 聽打練習頁面
 │   └── video-list/             # 📋 視頻列表管理
 ├── components/                   # React 組件庫
 │   ├── ui/                      # Shadcn/ui 基礎組件
 │   ├── YouTubePlayer.tsx        # 🎥 YouTube 播放器核心
 │   ├── BlanksFillPractice.tsx   # 📝 填空練習組件
-│   ├── DictationPractice.tsx    # ✍️ 聽寫練習組件
 │   └── SrtTranscriptViewer.tsx  # 📖 字幕查看器
 ├── lib/                         # 工具庫與服務
 │   ├── srt-utils.ts            # SRT 文件處理工具
-│   ├── socketManager.ts        # WebSocket 連接管理
+│   ├── video-service.ts        # 視頻服務
 │   ├── r2-service.ts           # Cloudflare R2 存儲服務
 │   └── utils.ts                # 通用工具函數
 └── docs/                        # 📚 技術文檔
     ├── BLANKS_FILL_PRACTICE_TECHNICAL_GUIDE.md
-    ├── DICTATION_SYSTEM_ARCHITECTURE.md
-    └── STATE_MACHINE_DISCUSSION.md
+    └── DICTATION_SYSTEM_ARCHITECTURE.md
 ```
 
 ---
 
 ## 🌐 API 端點
 
-### 轉錄服務
+### 視頻服務
 ```typescript
-POST /api/openai
-// OpenAI 語音轉錄和文本處理
-
 GET /api/srt/[videoId]
 // 獲取指定視頻的 SRT 字幕文件
 
-POST /api/sentence-split
-// AI 驅動的智能文本分段
-```
+GET /api/video/[videoId]/languages
+// 獲取視頻可用語言列表
 
-### 數據流向
-```mermaid
-graph TD
-    A[用戶上傳] --> B[OpenAI Whisper]
-    B --> C[文本處理]
-    C --> D[SRT 生成]
+GET /api/video/[videoId]/summary
+// 獲取視頻摘要信息
 ```
 
 ---
 
 ## 🎯 使用指南
 
-### 1. 轉錄逐字稿
-1. 訪問主頁，自動進入轉錄功能
-2. 選擇 **YouTube 轉錄** 或 **音頻文件轉錄**
-3. 輸入 YouTube URL 或上傳音頻文件
-4. 等待 AI 轉錄完成，下載 SRT 文件
+### 1. 選擇學習視頻
+1. 訪問主頁，進入視頻列表
+2. 瀏覽可用的學習視頻
+3. 選擇感興趣的視頻開始學習
 
 ### 2. 聽打練習
-1. 轉錄完成後，進入聽打練習模式
+1. 進入視頻頁面，選擇練習模式
 2. 選擇練習難度：初級 → 中級 → 高級
 3. 使用播放控制進行逐句練習
 4. 查看即時反饋和準確度評分
@@ -226,16 +203,13 @@ const [currentTime, setCurrentTime] = useState(0);
 
 ### 環境變數配置
 ```env
-# OpenAI API 配置
-OPENAI_API_KEY=your_openai_api_key
-
 # Cloudflare R2 配置
 R2_ACCESS_KEY_ID=your_r2_access_key
 R2_SECRET_ACCESS_KEY=your_r2_secret_key
 R2_BUCKET_NAME=your_bucket_name
 
-# Workers 服務 URL
-WORKER_URL=your_cloudflare_worker_url
+# 應用配置
+NEXT_PUBLIC_SITE_URL=your_site_url
 ```
 
 ### 建構部署
@@ -270,14 +244,14 @@ npm start
 ## 🌟 產品亮點
 
 ### 市場差異化優勢
-與市面上其他聽打工具相比，我們的獨特優勢：
+與市面上其他語言學習工具相比，我們的獨特優勢：
 
-| 特色功能 | 我們的產品 | Udict | Language Learning Ext | LyricsTraining |
-|---------|----------|-------|----------------------|---------------|
-| **漸進式難度** | ✅ 三層系統 | ❌ | ❌ | ❌ |
-| **記憶系統** | ✅ 跨難度保存 | ❌ | ❌ | ❌ |
-| **完整轉錄** | ✅ AI 驅動 | ❌ | ❌ | ❌ |
-| **實時反饋** | ✅ 即時驗證 | ✅ | ✅ | ✅ |
+| 特色功能 | 我們的產品 | 其他工具 |
+|---------|----------|---------|
+| **漸進式難度** | ✅ 三層系統 | ❌ |
+| **記憶系統** | ✅ 跨難度保存 | ❌ |
+| **YouTube 整合** | ✅ 原生支持 | 部分支持 |
+| **實時反饋** | ✅ 即時驗證 | ✅ |
 
 ### 目標用戶
 - 🎓 **語言學習者** - 從初學到高階的完整學習路徑
