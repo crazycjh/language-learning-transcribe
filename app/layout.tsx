@@ -17,7 +17,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "LingoBitz",
   description: "Improve listening and speaking through video dictation and sentence practice",
-  manifest: '/manifest.json',
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -60,6 +59,9 @@ export default function RootLayout({
 
   return (
     <html suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-900 text-slate-100`}>
         {children}
         {gaConfig.measurementId && gaConfig.enabled && (
