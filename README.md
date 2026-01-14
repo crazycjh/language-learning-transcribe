@@ -2,6 +2,14 @@
 
 > **Modern language learning platform focused on interactive subtitles and intelligent dictation practice**
 
+<p align="center">
+  <img
+    src="./public/screenshots/intermediate-mode.png"
+    alt="Intermediate mode: length-hint fill-in-the-blank dictation practice"
+    width="900"
+  />
+</p>
+
 A YouTube-based learning ecosystem built with Next.js 15, designed specifically for language learners. Features an innovative three-tier progressive dictation practice system and interactive subtitle functionality to provide professional-grade learning tools.
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.0-black)](https://nextjs.org)
@@ -10,6 +18,14 @@ A YouTube-based learning ecosystem built with Next.js 15, designed specifically 
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38bdf8)](https://tailwindcss.com)
 
 📖 **[中文文档](./README-zh.md)** | **[日本語](./README-ja.md)**
+
+### 🖼️ Screenshots
+
+| | |
+|:---:|:---:|
+| <img src="public/screenshots/video-list.png" alt="Video list" width="400" /><br/>**Video List** | <img src="public/screenshots/subtitle-viewer.png" alt="Subtitle viewer" width="400" /><br/>**Subtitle Viewer** |
+| <img src="public/screenshots/translation.png" alt="Translation" width="400" /><br/>**Translation** | <img src="public/screenshots/multi-language.png" alt="Multi-language" width="400" /><br/>**Multi-language** |
+| <img src="public/screenshots/video-summary.png" alt="Video summary" width="400" /><br/>**Video Summary** | <img src="public/screenshots/advanced-mode.png" alt="Advanced mode" width="400" /><br/>**Dictation (Advanced)** |
 
 ---
 
