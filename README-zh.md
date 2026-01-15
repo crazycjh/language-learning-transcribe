@@ -1,341 +1,136 @@
 # 🎯 LingoBitz-Dictation-Pro
 
-> **專注於字幕查看與智能聽打練習的現代化語言學習平台**
+> **不只是看影片，更是在「掌握」語言。**
+> 一個專為語言學習者設計的「理解 → 練習 → 分享」全方位學習平台。
 
-一個基於 Next.js 15 構建的 YouTube 視頻學習生態系統，專為語言學習者設計。通過獨創的三層漸進式聽打練習系統和互動字幕功能，為語言學習者提供專業級的學習工具。
-
-[![Next.js](https://img.shields.io/badge/Next.js-15.3.0-black)](https://nextjs.org)
-[![React](https://img.shields.io/badge/React-19.0.0-61dafb)](https://reactjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38bdf8)](https://tailwindcss.com)
-
-📖 **[English](./README.md)** | **[日本語](./README-ja.md)**
+<p align="center">
+  <img src="./public/screenshots/intermediate-mode.png" alt="中級模式" width="900" />
+</p>
 
 ---
 
-## ✨ 核心功能特色
+## 💡 專案願景
+LingoBitz 旨在解決語言學習者在觀看影片時「以為看懂了，其實聽不出來」的痛點。透過將影片理解、漸進式聽寫練習與社交互動結合，我們將被動的收看行為轉化為主動的語言內化過程。
 
-### 📝 **三層漸進式聽打練習**
-我們的獨創聽打練習系統，提供從初學者到高階的完整學習路徑：
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.7-black)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19.2.2-61dafb)](https://reactjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38bdf8)](https://tailwindcss.com)
 
-| 難度級別 | 練習方式 | 示例展示 | 適用對象 |
-|---------|----------|----------|----------|
-| **🟢 初級** | 首字母提示填空 | `h____` (hello) | 初學者建立信心 |
-| **🟡 中級** | 長度提示填空 | `_____` (hello) | 進階者技能提升 |
-| **🔴 高級** | 完全自由輸入 | 整句聽寫 | 高階者挑戰自我 |
+📖 **[English Document](./README.md)**
 
-### 🧠 **智能記憶系統**
-- **跨難度狀態保存** - 在不同難度間自由切換而不丟失進度
-- **穩定ID機制** - 確保練習狀態的一致性和可靠性
-- **即時進度同步** - 輸入狀態自動保存，無需擔心意外丟失
+---
 
-### 🎵 **精密播放控制**
-- **句子級精確控制** - 逐句播放，精確到毫秒
-- **循環播放模式** - 重點句子可設定自動重複
-- **智能自動暫停** - 句子結束自動暫停等待練習
-- **時間軸同步** - 字幕與視頻完美同步
+## 🎯 核心功能一覽
 
-### 📖 **互動字幕查看器**
-- **智能滾動** - 當前播放句子自動滾動到最佳位置
-- **點擊跳轉** - 點擊任意字幕即可跳轉到對應時間
-- **高亮顯示** - 正在播放的句子實時高亮標示
-- **一鍵複製** - 支援單句或整段字幕快速複製
-- **翻譯支援** - 同時查看多語言字幕
-- **章節導航** - 通過章節摘要在視頻段落間跳轉
+| 分類 | 功能特性 | 說明 |
+|------|----------|------|
+| **📝 聽打練習** | 三層漸進式難度 | 初級 (首字母提示) → 中級 (長度提示) → 高級 (完全自由輸入) |
+| | 智能記憶系統 | 跨難度狀態保存，切換難度時自動遷移正確輸入 |
+| | 即時反饋機制 | 填寫時即時計算準確度，並記錄嘗試歷史 |
+| **🎵 播放控制** | 句子級精確播放 | 毫秒級精確定位，句子結束自動暫停以利練習 |
+| | 循環播放模式 | 針對難句設定自動重複播放，強化聽力印象 |
+| **📖 互動字幕** | 點擊跳轉 | 點擊任意字幕行即可讓影片精確跳轉至該時間點 |
+| | 自動同步滾動 | 字幕隨影片進度自動高亮並滾動至最佳視角 |
+| **🌍 雙語學習** | 雙語對照顯示 | 同時顯示原文與翻譯 (繁中/英文)，快速攻克生詞 |
+| **🤖 AI 智慧** | 影片與章節摘要 | AI 自動生成影片大意與章節總結，練習前快速掌握脈絡 |
+| **🔗 社交互動** | 分享與挑戰 | 一鍵產生特定句子的分享連結，邀請朋友參與聽寫挑戰 |
+| **📱 PWA 支援** | 行動裝置優化 | 支援安裝至桌面，提供類原生應用的流暢操作體驗 |
 
-### 📊 **AI 生成視頻摘要**
-- **章節級摘要** - 按段落詳細分解視頻內容
-- **多語言摘要** - 提供多種語言版本以便更好理解
-- **互動彈窗顯示** - 練習時輕鬆查看摘要資訊
-- **整體和分段摘要** - 既有高層概覽也有詳細段落分析
+---
 
-### 📱 **漸進式網頁應用 (PWA)**
-- **離線功能** - 即使沒有網路連接也能繼續學習
-- **螢幕保持喚醒** - 練習期間保持螢幕常亮
-- **移動端優化** - 響應式設計，觸控友好的控制項
-- **類原生應用體驗** - 可安裝到設備獲得原生應用感受
+## ✨ 核心學習流程
+
+### 1. 📖 深度理解模式 (Watch Mode)
+在練習前，透過 AI 智慧摘要與互動字幕建立語境背景。點擊任意字幕即可跳轉播放、查看翻譯，並在章節間順暢導航。
+
+<p align="center">
+  <img src="public/screenshots/subtitle-viewer.png" width="32%" />
+  <img src="public/screenshots/video-summary.png" width="32%" />
+  <img src="public/screenshots/segment&summary.png" width="32%" />
+  <br/>
+  <em>互動式字幕查看器 | AI 影片摘要 | 章節級摘要</em>
+</p>
+
+> 🔗 [技術設計：系統架構與 R2 存取流程](./docs/DICTATION_SYSTEM_ARCHITECTURE.md)
+
+---
+
+### 2. 📝 三層漸進式聽寫 (Practice Mode)
+透過「主動回憶」將理解轉化為長期記憶。系統提供三種難度模式：
+- **🟢 初級**: 首字母提示（例如：`h____` 代表 "hello"）
+- **🟡 中級**: 長度提示（例如：`_____` 代表 "hello"）
+- **🔴 高級**: 完全自由輸入（整句聽寫）
+
+智能狀態記憶系統會在切換難度時，自動遷移正確的輸入內容。
+
+<p align="center">
+  <img src="public/screenshots/easy-mode.png" width="32%" />
+  <img src="public/screenshots/intermediate-mode.png" width="32%" />
+  <img src="public/screenshots/advanced-mode.png" width="32%" />
+  <br/>
+  <em>🟢 初級模式 | 🟡 中級模式 | 🔴 高級模式</em>
+</p>
+
+> 🔗 [技術實踐：聽寫記憶機制與演算法設計](./docs/BLANKS_FILL_PRACTICE_TECHNICAL_GUIDE.md)
+
+---
+
+### 3. 🔗 社交挑戰與分享 (Share & Challenge)
+無論在觀看或練習模式，皆可一鍵分享特定句子給朋友。發起挑戰，讓朋友嘗試同一句子的聽寫準確度，將學習變成協作與競爭並存的體驗。
+
+<p align="center">
+  <img src="public/screenshots/share-link.png" width="70%" />
+  <br/>
+  <em>一鍵分享，即時產生連結。</em>
+</p>
+
+---
+
+## 🎨 更多功能
+
+### 影片庫與管理
+集中管理所有學習素材，透過縮圖與元數據輕鬆瀏覽。
+
+<p align="center">
+  <img src="public/screenshots/video-list.png" width="70%" />
+</p>
+
+### 雙語對照支援
+在原文字幕旁同步顯示翻譯，加速詞彙學習與理解。
+
+<p align="center">
+  <img src="public/screenshots/translation.png" width="70%" />
+</p>
+
+### 全球化學習環境
+完整的國際化支援（zh-TW, en），適應多元學習情境。
+
+<p align="center">
+  <img src="public/screenshots/multi-language.png" width="70%" />
+</p>
+
+---
+
+## 🛠️ 工程設計與技術實踐
+
+- **組件架構與資料流**: 採用模組化設計與協調器模式管理跨組件狀態。 📊 [完整組件架構圖](./docs/DICTATION_COMPONENTS_DIAGRAM.md)
+- **複雜狀態機管理**: 採用**有限狀態機 (FSM)** 設計播放器控制邏輯。 📖 [深入探討](./docs/STATE_MACHINE_DISCUSSION.md)
+- **強健性驗證**: 引入 **Vitest + Property-based testing** 確保核心演算法在極端情況下的穩定性。
+- **現代技術棧**: Next.js 15.3.7 (App Router), React 19, Tailwind CSS v4, TanStack Query v5。
 
 ---
 
 ## 🚀 快速開始
 
-### 環境要求
-- **Node.js** >= 18.0.0
-- **npm** >= 8.0.0 或 **yarn** >= 1.22.0
-
-### 安裝步驟
-
 ```bash
-# 克隆專案
 git clone <repository-url>
-cd LingoBitz-Dictation-Pro
-
-# 安裝依賴
 npm install
-
-# 啟動開發伺服器
 npm run dev
-```
-
-### 訪問應用
-開發伺服器啟動後，在瀏覽器中訪問：
-- **本地地址**: [http://localhost:3500](http://localhost:3500)
-- **主要功能**: 應用將自動重定向到視頻列表頁面
-
----
-
-## 🛠️ 技術架構
-
-### 核心技術棧
-- **前端框架**: Next.js 15 (App Router) + React 19
-- **開發語言**: TypeScript (嚴格模式)
-- **樣式系統**: Tailwind CSS v4 + Shadcn/ui (New York 風格)
-- **開發工具**: Turbopack (快速建構)
-- **狀態管理**: TanStack Query v5 + React Hooks
-- **測試框架**: Vitest 配合屬性測試 (fast-check)
-
-### 後端服務與 API
-- **文件存儲**: Cloudflare R2 / AWS S3
-- **視頻處理**: 自定義 Worker API 處理元數據和 SRT 文件
-- **國際化**: next-intl 多語言支持 (zh-TW, en, ja)
-- **數據分析**: Google Analytics 環境配置追蹤
-
-### 組件架構
-- **函數式組件**: 100% React Hooks 架構
-- **狀態管理**: React state + useReducer 模式
-- **性能優化**: useCallback, useMemo, React.memo
-- **錯誤處理**: 完整的錯誤邊界和用戶反饋
-
----
-
-## 📁 專案結構
-
-```
-├── app/                          # Next.js App Router
-│   ├── api/                      # 後端 API 路由
-│   │   ├── srt/[videoId]/       # SRT 字幕文件服務
-│   │   ├── video/[videoId]/     # 視頻元數據 API (語言、摘要、分段)
-│   │   ├── video-list/          # 視頻列表管理
-│   │   └── thumbnail/[videoId]/ # 視頻縮圖服務
-│   ├── [locale]/                # 國際化路由 (zh-TW, en, ja)
-│   │   ├── vp/[videoId]/       # 🎯 視頻播放器與聽打練習頁面
-│   │   └── video-list/         # 📋 視頻列表管理
-│   └── layout.tsx, page.tsx     # 根佈局和首頁
-├── components/                   # React 組件庫
-│   ├── ui/                      # Shadcn/ui 基礎組件
-│   ├── YouTubePlayer.tsx        # 🎥 YouTube IFrame API 封裝
-│   ├── BlanksFillPractice.tsx   # 📝 三層聽打練習組件
-│   ├── SrtTranscriptViewer.tsx  # 📖 互動字幕查看器含翻譯功能
-│   ├── VideoSummary.tsx         # 📊 AI 生成摘要顯示
-│   ├── SentenceDisplay.tsx      # 句子資訊顯示
-│   └── Header.tsx, LanguageSwitcher.tsx # 導航組件
-├── lib/                         # 工具庫與服務
-│   ├── srt-utils.ts            # SRT 解析與填空生成演算法
-│   ├── video-service.ts        # 使用 TanStack Query 的視頻數據獲取
-│   ├── analytics.ts            # Google Analytics 事件追蹤
-│   ├── ga-config.ts            # 環境配置的 GA 設定
-│   ├── types.ts                # 共享 TypeScript 介面
-│   ├── utils.ts                # 通用工具 (cn, 語言名稱)
-│   └── hooks/usePageTracking.ts # 頁面瀏覽追蹤 hook
-├── messages/                    # 國際化文件
-│   ├── en.json, ja.json, zh-TW.json # 翻譯文件
-│   └── ...
-├── i18n/                        # next-intl 配置
-│   ├── routing.ts              # 語言路由設定
-│   └── request.ts              # 伺服器端 i18n
-├── __tests__/                   # 測試文件
-│   ├── baseline-functionality.test.ts      # 核心功能測試
-│   └── transcription-removal-properties.test.ts # 屬性測試
-└── docs/                        # 📚 技術文檔
-    ├── BLANKS_FILL_PRACTICE_TECHNICAL_GUIDE.md
-    └── DICTATION_SYSTEM_ARCHITECTURE.md
+# 訪問 http://localhost:3500
 ```
 
 ---
 
-## 🌐 API 端點
-
-### 視頻服務
-```typescript
-GET /api/srt/[videoId]?lang=zh
-// 獲取指定視頻的 SRT 字幕文件，支援語言參數
-
-GET /api/video/[videoId]/languages
-// 獲取視頻可用語言列表
-
-GET /api/video/[videoId]/summary?lang=zh
-// 獲取 AI 生成的視頻摘要，支援語言參數
-
-GET /api/video/[videoId]/segments?lang=zh
-// 獲取視頻分段和章節資訊
-
-GET /api/video-list
-// 獲取完整的可用學習視頻列表
-
-GET /api/thumbnail/[videoId]
-// 獲取視頻縮圖
-```
-
----
-
-## 🎯 使用指南
-
-### 1. 選擇學習視頻
-1. 訪問主頁，進入視頻列表
-2. 瀏覽可用的學習視頻
-3. 選擇感興趣的視頻開始學習
-
-### 2. 聽打練習
-1. 進入視頻頁面，選擇練習模式
-2. 選擇練習難度：初級 → 中級 → 高級
-3. 使用播放控制進行逐句練習
-4. 查看即時反饋和準確度評分
-
-### 3. 字幕查看
-1. 在觀看模式下瀏覽完整字幕
-2. 點擊任意句子跳轉播放時間
-3. 使用一鍵複製功能整理學習筆記
-
----
-
-## 🔧 開發指南
-
-### 開發命令
-```bash
-# 開發模式 (Turbopack)
-npm run dev
-
-# 生產建構
-npm run build
-
-# 啟動生產伺服器
-npm start
-
-# 代碼檢查
-npm run lint
-
-# 執行測試
-npm test
-```
-
-### 關鍵設計模式
-
-#### 狀態管理
-```typescript
-// 使用 React Hooks 進行狀態管理
-const [practiceState, setPracticeState] = useState<PracticeState>({
-  difficulty: BlanksDifficulty.INTERMEDIATE,
-  userInput: '',
-  accuracy: 0,
-  isComplete: false
-});
-```
-
-#### 記憶系統
-```typescript
-// 跨難度狀態保存
-interface DifficultyMemory {
-  blanksInputs: Map<string, string>;
-  practiceState: PracticeState;
-}
-```
-
-#### 播放控制
-```typescript
-// 精密的播放狀態管理
-const [isPlaying, setIsPlaying] = useState(false);
-const [isLooping, setIsLooping] = useState(false);
-const [currentTime, setCurrentTime] = useState(0);
-```
-
----
-
-## 🚢 部署指南
-
-### 環境變數配置
-```env
-# Worker API 配置
-WORKER_URL=your_worker_api_url
-
-# 應用配置
-NEXT_PUBLIC_SITE_URL=your_site_url
-NEXT_PUBLIC_APP_ENV=development
-
-# Google Analytics 配置
-NEXT_PUBLIC_GA_ENABLED=true
-NEXT_PUBLIC_GA_MEASUREMENT_ID_DEV=your_dev_ga_id
-NEXT_PUBLIC_GA_MEASUREMENT_ID_PROD=your_prod_ga_id
-```
-
-### 建構部署
-```bash
-# 生產建構
-npm run build
-
-# 啟動生產伺服器
-npm start
-```
-
-### Vercel 部署
-最簡單的部署方式是使用 [Vercel 平台](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)：
-
-1. 連接您的 GitHub 倉庫
-2. 配置環境變數
-3. 一鍵部署完成
-
----
-
-## 📚 技術文檔
-
-詳細的技術文檔請參考 `docs/` 目錄：
-
-- 📖 **[聽打練習技術指南](./docs/BLANKS_FILL_PRACTICE_TECHNICAL_GUIDE.md)** - 完整的功能實作細節
-- 🏗️ **[系統架構圖](./docs/DICTATION_SYSTEM_ARCHITECTURE.md)** - 視覺化系統架構
-- 🤖 **[狀態機討論](./docs/STATE_MACHINE_DISCUSSION.md)** - 播放控制狀態管理
-- 🎨 **[設計文檔](./docs/DICTATION_PRACTICE_DESIGN.md)** - UI/UX 設計規範
-
----
-
-## 🌟 產品亮點
-
-### 市場差異化優勢
-與市面上其他語言學習工具相比，我們的獨特優勢：
-
-| 特色功能 | 我們的產品 | 其他工具 |
-|---------|----------|---------|
-| **漸進式難度** | ✅ 三層系統 | ❌ |
-| **記憶系統** | ✅ 跨難度保存 | ❌ |
-| **YouTube 整合** | ✅ 原生支持 | 部分支持 |
-| **實時反饋** | ✅ 即時驗證 | ✅ |
-
-### 目標用戶
-- 🎓 **語言學習者** - 從初學到高階的完整學習路徑
-- 👨‍💼 **職場人士** - 商務英語和專業詞彙練習
-- 🏫 **教育機構** - 可用於課堂教學和作業布置
-- 📚 **自學愛好者** - 個性化學習進度和內容選擇
-
----
-
-## 🧪 測試
-
-### 執行測試
-```bash
-# 執行所有測試
-npm test
-
-# 監視模式執行測試
-npm run test
-
-# 單次執行測試
-npm run test:run
-
-# 使用 UI 執行測試
-npm run test:ui
-```
-
-### 代碼規範
-- 使用 **TypeScript** 嚴格模式
-- 遵循 **ESLint** 配置規則
-- 組件採用 **函數式編程** 模式
-- 提交信息使用 **常規提交格式**
-
+## 📄 授權協議
+MIT License - Copyright (c) 2025 LingoBitz
