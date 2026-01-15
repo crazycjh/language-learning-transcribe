@@ -10,7 +10,7 @@ graph TB
         subgraph "左側區域 - 視頻播放"
             YTP[YouTubePlayer.tsx<br/>🎥 視頻播放器]
             MODE[模式切換按鈕<br/>👆 觀看 ↔ 練習]
-            SD[SentenceDisplay.tsx<br/>📱 句子顯示(桌面版)]
+            SD[SentenceDisplay.tsx<br/>📱 句子顯示 - 桌面版]
         end
         
         subgraph "右側區域 - 練習功能"
@@ -27,8 +27,8 @@ graph TB
     end
     
     subgraph "API 層"
-        API[/api/srt/[videoId] 🌐<br/>字幕API]
-        OPENAI[/api/openai 🤖<br/>AI處理API]
+        API["/api/srt/videoId 🌐<br/>字幕API"]
+        OPENAI["/api/openai 🤖<br/>AI處理API"]
     end
     
     VPC --> YTP
@@ -286,8 +286,8 @@ graph LR
     end
     
     subgraph "存儲層"
-        M1[初級記憶 🗃️<br/>Map<string, string>]
-        M2[中級記憶 🗂️<br/>Map<string, string>]
+        M1["初級記憶 🗃️<br/>Map&lt;string, string&gt;"]
+        M2["中級記憶 🗂️<br/>Map&lt;string, string&gt;"]
         M3[高級記憶 📁<br/>string]
         S1[初級狀態 💾<br/>PracticeState]
         S2[中級狀態 💿<br/>PracticeState]
@@ -394,8 +394,8 @@ graph TD
     end
     
     subgraph "數據層 💾"
-        SEGMENTS[Segments[] 📋<br/>原始數據]
-        BLANKS[BlanksSegments[] 📝<br/>練習數據]
+        SEGMENTS["Segments[] 📋<br/>原始數據"]
+        BLANKS["BlanksSegments[] 📝<br/>練習數據"]
         STATE[練習狀態 🧠<br/>用戶進度]
     end
     

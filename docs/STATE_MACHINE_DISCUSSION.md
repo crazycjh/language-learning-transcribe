@@ -715,39 +715,73 @@ const handleDifficultyChange = (newDifficulty: BlanksDifficulty) => {
 | 記憶系統 | 中 | 4個 | 中等 | 少 | 簡單狀態 | 當前實作已足夠 |
 | 反饋模式 | 低 | 2個 | 無 | 無 | 簡單狀態 | 開關狀態，無需狀態機 |
 
-## 結論
+## 結論與最終實作方案
 
 通過深入分析，我們得出以下結論：
 
-### 1. **狀態機適用於播放控制**
-播放控制功能的複雜度、bug風險和維護需求都達到了使用狀態機的閾值。引入狀態機能夠：
-- 顯著降低狀態相關的bug風險
-- 提高代碼的可維護性和可測試性
-- 為未來功能擴展提供更好的基礎
+### 1. **播放控制採用 FSM 概念，但不引入 XState**
+播放控制功能的複雜度、bug風險和維護需求都達到了使用狀態機的閾值。
+
+**最終實作方式：手動實作的隱式狀態機**
+```typescript
+// 使用多個 boolean 狀態組合代表系統狀態
+const [isPlaying, setIsPlaying] = useState(false);
+const [isStarting, setIsStarting] = useState(false);
+const [pausedTime, setPausedTime] = useState<number | null>(null);
+const [isLooping, setIsLooping] = useState(false);
+const [isLoopWaiting, setIsLoopWaiting] = useState(false);
+
+// 狀態組合對應 FSM 狀態：
+// IDLE: !isPlaying && !isStarting && !isLoopWaiting
+// STARTING: isStarting
+// PLAYING: isPlaying && !isLoopWaiting
+// PAUSED: pausedTime !== null
+// LOOP_WAITING: isLoopWaiting
+```
+
+**為何不使用 XState？**
+- ✅ 避免引入新依賴的學習成本
+- ✅ 團隊對 React Hooks 更熟悉
+- ✅ 手動實作已能保證狀態一致性（通過守衛條件）
+- ✅ 代碼更直觀，適合中小型團隊維護
+
+**FSM 原則的體現：**
+- ✅ 明確的狀態定義（通過 boolean 組合）
+- ✅ 受控的狀態轉換（`if (!isStarting)` 等守衛條件）
+- ✅ 集中的副作用管理（`playCurrentSegment`, `pauseSegment` 等）
+- ✅ 防止非法狀態轉換
 
 ### 2. **難度切換保持簡單方式**
 難度切換功能的邏輯簡單，現有實作工作良好，引入狀態機會是過度工程化。
 
+```typescript
+// 簡單的 useState 已足夠
+const [difficulty, setDifficulty] = useState(BlanksDifficulty.INTERMEDIATE);
+```
+
 ### 3. **分層策略是最佳選擇**
 不是所有功能都需要相同的抽象層級。根據複雜度選擇合適的狀態管理方式：
-- 複雜功能：狀態機
-- 簡單功能：React state
-- 中等功能：useReducer
+- 複雜功能：手動實作的 FSM（播放控制）
+- 簡單功能：React useState（難度切換）
+- 中等功能：useReducer（如需要）
 
 ### 4. **技術決策要平衡收益和成本**
-雖然狀態機有很多優勢，但需要考慮：
+雖然 XState 等狀態機庫有很多優勢，但需要考慮：
 - 團隊的學習成本
 - 開發時間的投入
 - 實際解決的問題價值
 - 長期維護的考量
 
+**我們的選擇**：採用 FSM **概念**而非 FSM **庫**，在保證狀態一致性的同時，降低學習成本和依賴複雜度。
+
 這個討論為我們的技術選擇提供了清晰的依據，既避免了過度工程化，又在需要的地方使用了合適的技術方案。
 
 ---
 
-**文檔版本**: 1.0  
+**文檔版本**: 1.1  
 **創建日期**: 2024年  
-**最後更新**: 2024年  
+**最後更新**: 2026年1月  
+**實作狀態**: ✅ 已完成（採用手動實作的 FSM，未使用 XState）  
 **相關文檔**: 
 - [聽打練習技術指南](./BLANKS_FILL_PRACTICE_TECHNICAL_GUIDE.md)
 - [系統架構圖](./DICTATION_COMPONENTS_DIAGRAM.md)
