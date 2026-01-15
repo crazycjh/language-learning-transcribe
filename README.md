@@ -363,21 +363,4 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-## 📞 Contact & Support
-
-- 📧 **Issue Reports** - [GitHub Issues](https://github.com/your-repo/issues)
-- 💬 **Feature Requests** - [GitHub Discussions](https://github.com/your-repo/discussions)
-- 📖 **Documentation** - See detailed documentation in the `docs/` directory
-
----
-
-<div align="center">
-
-**🎯 Creating Intelligent Language Learning Experiences**
-
-*Making every dictation practice more precise, effective, and engaging*
-
-[![⭐ Star this repo](https://img.shields.io/github/stars/your-repo?style=social)](https://github.com/your-repo)
-[![🔄 Fork this repo](https://img.shields.io/github/forks/your-repo?style=social)](https://github.com/your-repo/fork)
-
-</div>
+## 🧪 Testing

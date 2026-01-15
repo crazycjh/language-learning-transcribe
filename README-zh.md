@@ -347,21 +347,4 @@ npm run test:ui
 
 ---
 
-## 📞 聯繫與支持
-
-- 📧 **問題回報** - [GitHub Issues](https://github.com/your-repo/issues)
-- 💬 **功能建議** - [GitHub Discussions](https://github.com/your-repo/discussions)
-- 📖 **使用說明** - 查看 `docs/` 目錄詳細文檔
-
----
-
-<div align="center">
-
-**🎯 打造智能化語言學習新體驗**
-
-*讓每一次聽打練習都更加精確、有效、有趣*
-
-[![⭐ Star this repo](https://img.shields.io/github/stars/your-repo?style=social)](https://github.com/your-repo)
-[![🔄 Fork this repo](https://img.shields.io/github/forks/your-repo?style=social)](https://github.com/your-repo/fork)
-
-</div>
+## 🧪 測試
