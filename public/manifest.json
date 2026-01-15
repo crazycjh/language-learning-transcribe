@@ -1,7 +1,7 @@
 {
-  "name": "LingoBitz",
+  "name": "LingoBitz-Dictation-Pro",
   "short_name": "LingoBitz",
-  "description": "YouTube 語言學習平台 - 互動字幕與聽打練習",
+  "description": "LingoBitz-Dictation-Pro: 專業 YouTube 聽力練習平台",
   "theme_color": "#0f172a",
   "background_color": "#0f172a",
   "display": "standalone",

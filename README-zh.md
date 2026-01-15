@@ -1,4 +1,4 @@
-# 🎯 YouTube 語言學習平台
+# 🎯 LingoBitz-Dictation-Pro
 
 > **專注於字幕查看與智能聽打練習的現代化語言學習平台**
 
@@ -68,7 +68,7 @@
 ```bash
 # 克隆專案
 git clone <repository-url>
-cd lingobitz-language-learning
+cd LingoBitz-Dictation-Pro
 
 # 安裝依賴
 npm install

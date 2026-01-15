@@ -1,4 +1,4 @@
-# 🎯 YouTube Language Learning Platform
+# 🎯 LingoBitz-Dictation-Pro
 
 > **Modern language learning platform focused on interactive subtitles and intelligent dictation practice**
 
@@ -84,7 +84,7 @@ Our innovative dictation practice system provides a complete learning path from 
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd lingobitz-language-learning
+cd LingoBitz-Dictation-Pro
 
 # Install dependencies
 npm install
