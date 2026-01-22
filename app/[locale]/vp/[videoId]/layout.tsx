@@ -83,52 +83,10 @@ export async function generateMetadata({
   };
 }
 
-// 獲取影片資訊的輔助函數（與 generateMetadata 共用邏輯）
-async function getVideoInfo(videoId: string) {
-  const workerUrl = process.env.WORKER_URL;
-
-  let videoTitle = '影片播放';
-  let videoDescription = '觀看並學習影片內容';
-
-  try {
-    if (workerUrl) {
-      // 使用新的 RESTful API
-      const response = await fetch(`${workerUrl}/api/videolist`, {
-        cache: 'no-store'
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const video = data.videos?.find((v: VideoListEntry) => v.videoId === videoId);
-
-        if (video) {
-          videoTitle = video.title || videoTitle;
-          videoDescription = video.description || videoDescription;
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Error fetching video info:', error);
-  }
-
-  return { videoTitle, videoDescription };
-}
-
-export default async function VideoPlayerLayout({
+export default function VideoPlayerLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ videoId: string }>;
 }) {
-  const { videoId } = await params;
-  const { videoTitle } = await getVideoInfo(videoId);
-
-  return (
-    <>
-      {/* SEO: H1 標題 - Server Component 渲染，對 SEO 最佳 */}
-      <h1 className="sr-only">{videoTitle}</h1>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

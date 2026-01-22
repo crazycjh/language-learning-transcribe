@@ -3,27 +3,37 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Eye, User, Headphones } from 'lucide-react';
+import { Play, Eye, User, Headphones, Loader2 } from 'lucide-react';
 import { VideoListEntry } from '@/lib/types';
 import { formatDuration, formatViewCount, getSrtContent } from '@/lib/video-service';
-import Link from 'next/link';
 import Image from 'next/image';
 
 export function VideoGrid({ videos }: { videos: VideoListEntry[] }) {
+  const [isNavigating, setIsNavigating] = useState(false);
+
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
-      {videos.map((video) => (
-        <VideoCard key={video.videoId} video={video} />
-      ))}
-    </div>
+    <>
+      {isNavigating && (
+        <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+        </div>
+      )}
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+        {videos.map((video) => (
+          <VideoCard key={video.videoId} video={video} onNavigate={() => setIsNavigating(true)} />
+        ))}
+      </div>
+    </>
   );
 }
 
-function VideoCard({ video }: { video: VideoListEntry }) {
+function VideoCard({ video, onNavigate }: { video: VideoListEntry; onNavigate: () => void }) {
   const t = useTranslations('videoList');
   const locale = useLocale();
+  const router = useRouter();
   const [imageError, setImageError] = useState(false);
   const queryClient = useQueryClient();
 
@@ -96,13 +106,18 @@ function VideoCard({ video }: { video: VideoListEntry }) {
           )}
         </CardDescription>
 
-        <Link href={`/${locale}/vp/${video.videoId}`}>
-          <Button className="w-full text-xs md:text-sm px-2 md:px-4" size="sm">
-            <Play className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-            <span className="hidden sm:inline">{t('startPractice')}</span>
-            <span className="sm:hidden">{t('practice')}</span>
-          </Button>
-        </Link>
+        <Button 
+          className="w-full text-xs md:text-sm px-2 md:px-4" 
+          size="sm"
+          onClick={() => {
+            onNavigate();
+            router.push(`/${locale}/vp/${video.videoId}`);
+          }}
+        >
+          <Play className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+          <span className="hidden sm:inline">{t('startPractice')}</span>
+          <span className="sm:hidden">{t('practice')}</span>
+        </Button>
       </CardContent>
     </Card>
   );
